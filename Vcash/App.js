@@ -1,11 +1,22 @@
+import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { useFonts } from 'expo-font';
+import { createStackNavigator } from '@react-navigation/stack';
+import GetStarted from './Screens/GetStarted';
+import { NavigationContainer } from '@react-navigation/native';
+
+const Stack = createStackNavigator();
 
 export default function App() {
 
   const [fontsLoaded] = useFonts({
     'Inter-ExtraBold': require('./assets/fonts/Inter-ExtraBold.ttf'),
+    'Inter-Bold': require('./assets/fonts/Inter-Bold.ttf'),
+    'Inter-Light': require('./assets/fonts/Inter-Light.ttf'),
+    'Inter-ExtraLight': require('./assets/fonts/Inter-ExtraLight.ttf'),
+    'Inter-Black': require('./assets/fonts/Inter-Black.ttf'),
+    'Inter-Regular': require('./assets/fonts/Inter-Regular.ttf'),
   });
 
   if(!fontsLoaded){
@@ -13,10 +24,11 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={{fontFamily:"Inter-ExtraBold"}}>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator>
+      <Stack.Screen options={{headerShown:false}} name="Get Started" component={GetStarted} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
@@ -31,3 +43,7 @@ const styles = StyleSheet.create({
 
 // to use custom fonts
 // npx expo install expo-font
+
+// React stack view
+// npm install @react-navigation/stack
+// npx expo install react-native-gesture-handler
