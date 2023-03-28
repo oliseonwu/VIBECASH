@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { Text, View, SafeAreaView, StatusBar, Image, TouchableOpacity} from 'react-native';
 import { s } from "react-native-wind";
@@ -5,7 +6,9 @@ import { resizeMode } from 'react-native-wind/dist/styles/layout/resize-mode';
 import ladyOnAChair from "../assets/img/LadyOnAChair.png"
 
 const GetStarted = ()=> {
+     const navigation = useNavigation();
         return (
+            
         <SafeAreaView style={s`bg-white`}>
 
             <StatusBar
@@ -37,7 +40,7 @@ const GetStarted = ()=> {
                     <View style={[s`pt-10`, {justifyContent: 'center', alignItems: 'center'}]}>
 
                         <TouchableOpacity style={[s`bg-black `, {width:"100%", height: 54, 
-                            borderRadius: 19.43, justifyContent: 'center', alignItems: 'center'}]}>
+                            borderRadius: 19.43, justifyContent: 'center', alignItems: 'center'}]} onPress={()=> navigation.navigate('PNpage')}>
 
                             <Text style={[s`text-white text-center`,
                                 {fontFamily: "Inter-Bold", fontSize: 17.93}]}>

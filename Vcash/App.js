@@ -5,6 +5,7 @@ import { useFonts } from 'expo-font';
 import { createStackNavigator } from '@react-navigation/stack';
 import GetStarted from './Screens/GetStarted';
 import { NavigationContainer } from '@react-navigation/native';
+import PNPage from './Screens/PNPage';
 
 const Stack = createStackNavigator();
 
@@ -17,6 +18,7 @@ export default function App() {
     'Inter-ExtraLight': require('./assets/fonts/Inter-ExtraLight.ttf'),
     'Inter-Black': require('./assets/fonts/Inter-Black.ttf'),
     'Inter-Regular': require('./assets/fonts/Inter-Regular.ttf'),
+    'Inter-Medium': require('./assets/fonts/Inter-Medium.ttf'),
   });
 
   if(!fontsLoaded){
@@ -27,6 +29,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
       <Stack.Screen options={{headerShown:false}} name="Get Started" component={GetStarted} />
+      <Stack.Screen options={{headerShown:false}} name="PNpage" component={PNPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );
