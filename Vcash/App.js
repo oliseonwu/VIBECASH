@@ -1,6 +1,8 @@
 import 'react-native-gesture-handler';
+import { StrictMode } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, SafeAreaView } from 'react-native';
+import { s } from "react-native-wind";
 import { useFonts } from 'expo-font';
 import { createStackNavigator } from '@react-navigation/stack';
 import GetStarted from './Screens/GetStarted';
@@ -24,11 +26,20 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-      <Stack.Screen options={{headerShown:false}} name="Get Started" component={GetStarted} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <SafeAreaView style={[s`bg-white`, {width:"100%", height:"100%"}]}>
+
+            <StatusBar
+                barStyle={"dark-content"}>
+            </StatusBar>
+    
+            <NavigationContainer>
+              <Stack.Navigator>
+              <Stack.Screen options={{headerShown:false}} name="Get Started" component={GetStarted} />
+              {/* <Stack.Screen options={{headerShown:false}} name="PNpage" component={PNPage} /> */}
+              </Stack.Navigator>
+            </NavigationContainer>
+    </SafeAreaView>
+    
   );
 }
 
