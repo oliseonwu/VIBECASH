@@ -40,7 +40,7 @@ export default function App() {
             <NavigationContainer>
               <Stack.Navigator>
               <Stack.Screen options={{headerShown:false}} name="Get Started" component={GetStarted} />
-              {/* <Stack.Screen options={{headerShown:false}} name="PNpage" component={PNPage} /> */}
+              <Stack.Screen options={{headerShown:false}} name="PNpage" component={PNPage} />
               </Stack.Navigator>
             </NavigationContainer>
     </SafeAreaView>
