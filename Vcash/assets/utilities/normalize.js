@@ -34,7 +34,7 @@ const normalize = (size) => {
           size *= 0.35; //test
         }
         else if (height < 500) {
-          size *= 0.4; //test
+          size *= 0.45; //test
         }
         else if (height < 667) {
           size *= 0.75; //test
@@ -56,7 +56,7 @@ const normalize = (size) => {
           size *= 0.35; //test
         }
         else if (height < 500) {
-          size *= 0.4; //test
+          size *= 0.45; //test
         }
         else if (height < 667) {
           size *= 0.75;
@@ -77,7 +77,7 @@ const normalize = (size) => {
           size *= 0.35; //test
         }
         else if (height < 500) {
-          size *= 0.4; //test
+          size *= 0.45; //test
         }
         else if (height < 667) {
           size *= 0.75;
