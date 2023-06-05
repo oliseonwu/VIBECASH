@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 
 
 const EmailPage = ({navigation}) => {
-    // const navigation = useNavigation();
+    
     return (
         <SafeAreaView style={s`bg-white`}>
             <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>
@@ -30,7 +30,7 @@ const EmailPage = ({navigation}) => {
 
 
                     <View style={s`flex-row absolute bottom-10 `}>
-                        <TouchableOpacity onPress={()=> navigation.navigate('PNPage')} 
+                        <TouchableOpacity onPress={()=> navigation.navigate('PNpage')} 
                             style={[s`bg-black`, { marginLeft:"5%",width:"43.7%", height: scale(38), 
                                 borderRadius: 19.43, justifyContent: 'center', alignItems: 'center',
                                 }]} >
@@ -41,7 +41,7 @@ const EmailPage = ({navigation}) => {
                                 </Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={()=> navigation.navigate('PNPage')} 
+                        <TouchableOpacity  
                             style={[{ marginLeft:"5%",width:"43.7%", height: scale(38), 
                                 borderRadius: 19.43, justifyContent: 'center', alignItems: 'center',
                                 backgroundColor:"#008751"}]} >
