@@ -7,6 +7,8 @@ import { useFonts } from 'expo-font';
 import { createStackNavigator } from '@react-navigation/stack';
 import GetStarted from './Screens/GetStarted';
 import { NavigationContainer } from '@react-navigation/native';
+import EmailPage from './Screens/EmailPage';
+import PNPage from './Screens/PNPage';
 
 const Stack = createStackNavigator();
 
@@ -19,6 +21,9 @@ export default function App() {
     'Inter-ExtraLight': require('./assets/fonts/Inter-ExtraLight.ttf'),
     'Inter-Black': require('./assets/fonts/Inter-Black.ttf'),
     'Inter-Regular': require('./assets/fonts/Inter-Regular.ttf'),
+    'Inter-Medium': require('./assets/fonts/Inter-Medium.ttf'),
+    'Inter-SemiBold': require('./assets/fonts/Inter-SemiBold.ttf'),
+    'Inter-Thin': require('./assets/fonts/Inter-Thin.ttf'),
   });
 
   if(!fontsLoaded){
@@ -58,3 +63,6 @@ const styles = StyleSheet.create({
 // React stack view
 // npm install @react-navigation/stack
 // npx expo install react-native-gesture-handler
+
+// Scaller
+// npm i --save react-native-size-matters
