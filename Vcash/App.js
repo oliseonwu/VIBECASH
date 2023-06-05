@@ -12,6 +12,7 @@ import PNPage from './Screens/PNPage';
 
 const Stack = createStackNavigator();
 
+
 export default function App() {
 
   const [fontsLoaded] = useFonts({
@@ -38,9 +39,10 @@ export default function App() {
             </StatusBar>
     
             <NavigationContainer>
-              <Stack.Navigator>
-              <Stack.Screen options={{headerShown:false}} name="Get Started" component={GetStarted} />
-              <Stack.Screen options={{headerShown:false}} name="PNpage" component={PNPage} />
+              <Stack.Navigator >
+              <Stack.Screen options={{headerShown:false, animationEnabled: false}} name="Get Started" component={GetStarted} />
+              <Stack.Screen options={{headerShown:false, animationEnabled: false}} name="PNpage" component={PNPage} />
+              <Stack.Screen options={{headerShown:false, animationEnabled: false}} name="EmailPage" component={EmailPage} />
               </Stack.Navigator>
             </NavigationContainer>
     </SafeAreaView>
