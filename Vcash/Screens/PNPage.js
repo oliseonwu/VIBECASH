@@ -1,10 +1,8 @@
-import React from 'react';
 import { Text, View, useWindowDimensions, TextInput, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Platform} from 'react-native';
 import { s } from "react-native-wind";
 import normalize from '../assets/utilities/normalize';
-import { position } from 'react-native-wind/dist/styles/layout/position';
 import ResizableContainer from '../assets/components/ResizableContainer';
-import { justifyContent } from 'react-native-wind/dist/styles/flex/justify-content';
+
 
 
 const PNPage = ({navigation}) => {
@@ -13,7 +11,6 @@ const PNPage = ({navigation}) => {
     const scale = normalize;
 
     const stopPropagation = (e)=>{
-        console.log("jjjjj")
         e.stopPropagation()
     }
     
