@@ -86,8 +86,7 @@ const normalize = (size) => {
         }
         else{
           size *= 0.85; // tested
-        }
-        
+        }  
     }
     
 
