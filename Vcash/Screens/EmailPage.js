@@ -3,6 +3,10 @@ import { Text, View, TextInput, useWindowDimensions, TouchableWithoutFeedback, K
 import { s } from "react-native-wind";
 import ResizableContainer from '../assets/components/ResizableContainer';
 import normalize  from '../assets/utilities/normalize';
+import emailjs from '@emailjs/browser';
+import {REACT_APP_PUBLIC_KEY,REACT_APP_SERVICE_ID,
+    REACT_APP_TEMPLATE_ID, EMAIL_CODE} from "@env"
+
 
 
 
@@ -10,11 +14,25 @@ import normalize  from '../assets/utilities/normalize';
 const EmailPage = ({navigation}) => {
     const {height, width} = useWindowDimensions();
     const scale = normalize;
+    
 
     const stopPropagation = (e)=>{
         e.stopPropagation()
     }
-    
+
+    const sendEmail = () =>{
+        console.log(REACT_APP_PUBLIC_KEY)
+        St
+        console.log(EMAIL_CODE)
+        // emailjs.send(REACT_APP_SERVICE_ID,REACT_APP_TEMPLATE_ID
+        //     ,{message:2345, EMAIL: "olisemeduaphilip@gmail.com"}, REACT_APP_PUBLIC_KEY )
+        //     .then(function(response) {
+        //         console.log('SUCCESS!', response.status, response.text);
+        //      }, function(error) {
+        //         console.log('FAILED...', error);
+        //      });
+        }
+
     return (
         <ResizableContainer width={width}>
             <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>
@@ -50,7 +68,7 @@ const EmailPage = ({navigation}) => {
                                 </Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity  
+                        <TouchableOpacity  onPress={()=>sendEmail()}
                             style={[{ width:"43.7%", height: scale(48), 
                                 borderRadius: scale(19.43), justifyContent: 'center', alignItems: 'center',
                                 backgroundColor:"#008751"}]} >
