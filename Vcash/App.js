@@ -9,6 +9,7 @@ import GetStarted from './Screens/GetStarted';
 import { NavigationContainer } from '@react-navigation/native';
 import EmailPage from './Screens/EmailPage';
 import PNPage from './Screens/PNPage';
+import VerifyEmailPage from './Screens/VerifyEmailPage';
 
 const Stack = createStackNavigator();
 
@@ -43,6 +44,7 @@ export default function App() {
               <Stack.Screen options={{headerShown:false, animationEnabled: false}} name="Get Started" component={GetStarted} />
               <Stack.Screen options={{headerShown:false, animationEnabled: false}} name="PNpage" component={PNPage} />
               <Stack.Screen options={{headerShown:false, animationEnabled: false}} name="EmailPage" component={EmailPage} />
+              <Stack.Screen options={{headerShown:false, animationEnabled: false}} name="VerifyEmailPG" component={VerifyEmailPage} />
               </Stack.Navigator>
             </NavigationContainer>
     </SafeAreaView>
