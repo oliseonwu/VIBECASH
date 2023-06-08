@@ -13,6 +13,7 @@ import {REACT_APP_PUBLIC_KEY,REACT_APP_SERVICE_ID,
     REACT_APP_TEMPLATE_ID, ENCRYPTION_KEY, } from "@env"
 import { useRef, useState, useContext } from 'react';
 import { isPageVisitedContex } from '../assets/components/visitedPagesListContex';
+import AutoInputFocus from '../assets/components/AutoInputFocus';
 
 const EmailPage = ({navigation}) => {
     // email pattern recorgnistion
@@ -21,14 +22,7 @@ const EmailPage = ({navigation}) => {
     const {height, width} = useWindowDimensions();
     const[email, setEmailState] = useState("")
     const inputRef = useRef(); // reference to the input DOM obj 
-    const scale = normalize;
-    let isPageAlreadyVisited =  useContext(isPageVisitedContex);
-    let visitPageFunc = isPageAlreadyVisited.visitPage
-    isPageAlreadyVisited = isPageAlreadyVisited.screenListVisitState.EmailPage;
-    
-    
-    
-    
+    const scale = normalize;    
     
     const sendEmail = () =>{
         Keyboard.dismiss()
@@ -52,9 +46,15 @@ const EmailPage = ({navigation}) => {
 
     //     .then(function(response) {
     //         console.log("Email sent!");
-    // if(Keyboard.isVisible){
-    //     setTimeout(()=>navigation.navigate(
-    //         'VerifyEmailPG',{email}),200)
+    // if(Platform.OS != "web"){
+    //     if(Keyboard.isVisible()){
+    //         setTimeout(()=>navigation.navigate(
+    //             'VerifyEmailPG',{email}),200)
+    //     }
+    //     else{
+    //         navigation.navigate(
+    //             'VerifyEmailPG',{email})
+    //     }
     // }
     // else{
     //     navigation.navigate(
@@ -70,14 +70,21 @@ const EmailPage = ({navigation}) => {
 
         // if keyboard is open wait for the keyboard
         // to go off the screen before navigating
-        if(Keyboard.isVisible){
-            setTimeout(()=>navigation.navigate(
-                'VerifyEmailPG',{email}),200)
+        if(Platform.OS != "web"){
+            if(Keyboard.isVisible()){
+                setTimeout(()=>navigation.navigate(
+                    'VerifyEmailPG',{email}),200)
+            }
+            else{
+                navigation.navigate(
+                    'VerifyEmailPG',{email})
+            }
         }
         else{
             navigation.navigate(
                 'VerifyEmailPG',{email})
         }
+        
         
             
 //==============================================================
@@ -124,21 +131,10 @@ const EmailPage = ({navigation}) => {
         </TouchableOpacity>
         }
     }
-
-    if(!isPageAlreadyVisited){  
-        
-        // auto focus after some time
-        // after the view is visible
-        setTimeout(() => {
-            inputRef.current.focus()
-            }, 500);
-
-            // set page visited
-            visitPageFunc("EmailPage")
-    }
     
     return (
         <ResizableContainer width={width}>
+            <AutoInputFocus pageName={"EmailPage"} inputRef = {inputRef}  />
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={25} 
             style={{height:"100%"}}>
             <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>

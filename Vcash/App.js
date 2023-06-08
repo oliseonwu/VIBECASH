@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import { StrictMode, createContext, useRef, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, SafeAreaView } from 'react-native';
+import { StyleSheet, SafeAreaView, useWindowDimensions } from 'react-native';
 import { s } from "react-native-wind";
 import { useFonts } from 'expo-font';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -10,6 +10,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import EmailPage from './Screens/EmailPage';
 import PNPage from './Screens/PNPage';
 import VerifyEmailPage from './Screens/VerifyEmailPage';
+
 import { isPageVisitedContex } from './assets/components/visitedPagesListContex';
 
 const Stack = createStackNavigator();
@@ -21,8 +22,8 @@ export default function App() {
 
   const [screenListVisitState, setScreenListVisitState] = useState({"PNpage": false,
  'EmailPage': false, VerifyEmailPG: false});
- // this hode state of if we have visited these screens or not 
- 
+ // this hold state of if we have visited these screens or not  
+
   const [fontsLoaded] = useFonts({
     'Inter-ExtraBold': require('./assets/fonts/Inter-ExtraBold.ttf'),
     'Inter-Bold': require('./assets/fonts/Inter-Bold.ttf'),
@@ -50,7 +51,7 @@ export default function App() {
     
     <SafeAreaView style={[s`bg-white`, {width:"100%", height:"100%"}]}>
       <isPageVisitedContex.Provider value={{screenListVisitState, visitPage}}>
-        
+  
             <StatusBar
                 barStyle={"dark-content"}>
             </StatusBar>
@@ -70,15 +71,6 @@ export default function App() {
     
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
 
 // to use custom fonts
 // npx expo install expo-font
