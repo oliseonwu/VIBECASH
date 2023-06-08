@@ -4,11 +4,8 @@ import { Text, View, useWindowDimensions, TextInput,
 import { s } from "react-native-wind";
 import normalize from '../assets/utilities/normalize';
 import ResizableContainer from '../assets/components/ResizableContainer';
-import { isPageVisitedContex } from '../assets/components/visitedPagesListContex';
 import {useRef, useContext } from 'react';
 import AutoInputFocus from '../assets/components/AutoInputFocus';
-
-
 
 const PNPage = ({navigation}) => {
 
