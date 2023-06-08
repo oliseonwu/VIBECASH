@@ -5,7 +5,8 @@ import { s } from "react-native-wind";
 import normalize from '../assets/utilities/normalize';
 import ResizableContainer from '../assets/components/ResizableContainer';
 import { isPageVisitedContex } from '../assets/components/visitedPagesListContex';
-import { useEffect, useRef, useContext } from 'react';
+import {useRef, useContext } from 'react';
+import AutoInputFocus from '../assets/components/AutoInputFocus';
 
 
 
@@ -14,46 +15,35 @@ const PNPage = ({navigation}) => {
     const {height, width} = useWindowDimensions();
     const scale = normalize;
     const inputRef = useRef(); // reference to the input DOM obj 
-    let isPageAlreadyVisited =  useContext(isPageVisitedContex);
-    let visitPageFunc = isPageAlreadyVisited.visitPage
-    isPageAlreadyVisited = isPageAlreadyVisited.screenListVisitState.PNpage;
-
+    
     const stopPropagation = (e)=>{
         e.stopPropagation()
-    }
-
-    if(!isPageAlreadyVisited){
-        
-
-            // auto focus after some time
-            // after the view is visible
-            setTimeout(() => {
-                inputRef.current.focus()
-              }, 500);
-            
-            visitPageFunc("PNpage");
-        
     }
     
     const goToEmailPage = () =>{
         
-        if(Keyboard.isVisible()){
-            Keyboard.dismiss()
-
-            setTimeout(()=>{
+        if(Platform.OS !== "web"){
+            if(Keyboard.isVisible()){
+                Keyboard.dismiss()
+    
+                setTimeout(()=>{
+                    navigation.navigate('EmailPage')
+                },300)
+            }
+            else{
+                
                 navigation.navigate('EmailPage')
-            },300)
+            }
         }
         else{
-            
             navigation.navigate('EmailPage')
-        }
-        
+        }  
     }
     
     return (
     
         <ResizableContainer width={width}>
+            <AutoInputFocus pageName={"PNpage"} inputRef = {inputRef}  />
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={25} 
             style={{height:"100%"}}>
                 <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()} >
