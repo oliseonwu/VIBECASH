@@ -11,7 +11,8 @@ import CryptoJS from 'react-native-crypto-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {REACT_APP_PUBLIC_KEY,REACT_APP_SERVICE_ID,
     REACT_APP_TEMPLATE_ID, ENCRYPTION_KEY, } from "@env"
-import { useState } from 'react';
+import { useRef, useState, useContext } from 'react';
+import { isPageVisitedContex } from '../assets/components/visitedPagesListContex';
 
 const EmailPage = ({navigation}) => {
     // email pattern recorgnistion
@@ -19,9 +20,18 @@ const EmailPage = ({navigation}) => {
     
     const {height, width} = useWindowDimensions();
     const[email, setEmailState] = useState("")
+    const inputRef = useRef(); // reference to the input DOM obj 
     const scale = normalize;
+    let isPageAlreadyVisited =  useContext(isPageVisitedContex);
+    let visitPageFunc = isPageAlreadyVisited.visitPage
+    isPageAlreadyVisited = isPageAlreadyVisited.screenListVisitState.EmailPage;
+    
+    
+    
+    
     
     const sendEmail = () =>{
+        Keyboard.dismiss()
         var randomNum = crypto.getRandomValues(new Uint8Array(4));
         // get random number
 
@@ -42,7 +52,14 @@ const EmailPage = ({navigation}) => {
 
     //     .then(function(response) {
     //         console.log("Email sent!");
-    //         navigation.navigate('VerifyEmailPG');
+    // if(Keyboard.isVisible){
+    //     setTimeout(()=>navigation.navigate(
+    //         'VerifyEmailPG',{email}),200)
+    // }
+    // else{
+    //     navigation.navigate(
+    //         'VerifyEmailPG',{email})
+    // }
 
     //      }, function(error) {
     //         console.log('FAILED...', error);
@@ -50,19 +67,20 @@ const EmailPage = ({navigation}) => {
 
 //============= Remember to remove =============================
         console.log('Your VerificationCode is %s', code);
-        navigation.navigate('VerifyEmailPG',{email});
+
+        // if keyboard is open wait for the keyboard
+        // to go off the screen before navigating
+        if(Keyboard.isVisible){
+            setTimeout(()=>navigation.navigate(
+                'VerifyEmailPG',{email}),200)
+        }
+        else{
+            navigation.navigate(
+                'VerifyEmailPG',{email})
+        }
+        
+            
 //==============================================================
-    
-    // Dycrypt data
-    //    AsyncStorage.getItem(ENCRYPTION_KEY)
-    //    .then((encryptedData) => {
-    //         const decryptedData = CryptoJS.AES.decrypt(
-    //             encryptedData, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
-    //    // Use the decrypted data
-    //    })
-    //    .catch((error) => {
-    //     console.log('DECRYPTION FAILED ...', error);
-    //    });
         }
 
     const encryptAndSaveCode = (code)=>{
@@ -107,6 +125,18 @@ const EmailPage = ({navigation}) => {
         }
     }
 
+    if(!isPageAlreadyVisited){  
+        
+        // auto focus after some time
+        // after the view is visible
+        setTimeout(() => {
+            inputRef.current.focus()
+            }, 500);
+
+            // set page visited
+            visitPageFunc("EmailPage")
+    }
+    
     return (
         <ResizableContainer width={width}>
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={25} 
@@ -122,7 +152,7 @@ const EmailPage = ({navigation}) => {
                     <TouchableOpacity onPress={(e)=> e.stopPropagation} style={{width:"100%"}}>
 
                         <View style={[ {paddingTop: scale(7), paddingLeft:scale(33)}]}>
-                            <TextInput style={[{ fontFamily:
+                            <TextInput ref={inputRef} style={[{ fontFamily:
                             "Inter-Light", fontSize:scale(19), height: scale(50)}] }
                                     placeholder={'Email Address'}
                                     keyboardType="email-address"
