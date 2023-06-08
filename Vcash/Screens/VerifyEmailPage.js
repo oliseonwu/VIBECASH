@@ -5,15 +5,13 @@ import { Text, View, TextInput, useWindowDimensions,
 import { s } from "react-native-wind";
 import ResizableContainer from '../assets/components/ResizableContainer';
 import normalize  from '../assets/utilities/normalize';
-import emailjs from '@emailjs/browser';
 import 'react-native-get-random-values'
 import CryptoJS from 'react-native-crypto-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {REACT_APP_PUBLIC_KEY,REACT_APP_SERVICE_ID,
-    REACT_APP_TEMPLATE_ID, ENCRYPTION_KEY, } from "@env"
+import {ENCRYPTION_KEY } from "@env"
 import { useState, useRef, useEffect, useContext } from 'react';
-import { isPageVisitedContex } from '../assets/components/visitedPagesListContex';
 import { useRoute } from '@react-navigation/native';
+import AutoInputFocus from '../assets/components/AutoInputFocus';
 
 const VerifyEmailPage = ({navigation}) => {
     // email pattern recorgnistion
@@ -22,20 +20,7 @@ const VerifyEmailPage = ({navigation}) => {
     const inputRef = useRef(); // reference to the input DOM obj 
     const {height, width} = useWindowDimensions();
     const[inputCode, setInputCode] = useState("")
-    let isPageAlreadyVisited =  useContext(isPageVisitedContex);
-    let visitPageFunc = isPageAlreadyVisited.visitPage
-    isPageAlreadyVisited = isPageAlreadyVisited.screenListVisitState.VerifyEmailPG;
     const scale = normalize;
-
-    if(!isPageAlreadyVisited){
-        // auto focus after some time
-        // after the view is visible
-        setTimeout(() => {
-            inputRef.current.focus()
-          }, 500);
-
-          visitPageFunc("VerifyEmailPG");
-    }
     
     const VerifyCode = () =>{
         Keyboard.dismiss()
@@ -109,6 +94,7 @@ const VerifyEmailPage = ({navigation}) => {
 
     return (
         <ResizableContainer width={width}>
+            <AutoInputFocus pageName={"VerifyEmailPG"} inputRef = {inputRef}  />
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={25} 
             style={{height:"100%"}}>
             <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>
