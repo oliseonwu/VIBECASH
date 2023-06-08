@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import { StrictMode } from 'react';
+import { StrictMode, createContext, useRef, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, SafeAreaView } from 'react-native';
 import { s } from "react-native-wind";
@@ -10,12 +10,19 @@ import { NavigationContainer } from '@react-navigation/native';
 import EmailPage from './Screens/EmailPage';
 import PNPage from './Screens/PNPage';
 import VerifyEmailPage from './Screens/VerifyEmailPage';
+import { isPageVisitedContex } from './assets/components/visitedPagesListContex';
 
 const Stack = createStackNavigator();
 
+// export const isPageVisitedContex = createContext();
+// hold the status of if a page has been visited or not
 
 export default function App() {
 
+  const [screenListVisitState, setScreenListVisitState] = useState({"PNpage": false,
+ 'EmailPage': false, VerifyEmailPG: false});
+ // this hode state of if we have visited these screens or not 
+ 
   const [fontsLoaded] = useFonts({
     'Inter-ExtraBold': require('./assets/fonts/Inter-ExtraBold.ttf'),
     'Inter-Bold': require('./assets/fonts/Inter-Bold.ttf'),
@@ -32,21 +39,33 @@ export default function App() {
     return undefined;
   }
 
-  return (
-    <SafeAreaView style={[s`bg-white`, {width:"100%", height:"100%"}]}>
+  const visitPage = (screenName)=>{
+    const tempList = screenListVisitState;
 
+    tempList[screenName] = true;
+    setScreenListVisitState(tempList)
+  }
+
+  return (
+    
+    <SafeAreaView style={[s`bg-white`, {width:"100%", height:"100%"}]}>
+      <isPageVisitedContex.Provider value={{screenListVisitState, visitPage}}>
+        
             <StatusBar
                 barStyle={"dark-content"}>
             </StatusBar>
-    
-            <NavigationContainer>
-              <Stack.Navigator >
-              <Stack.Screen options={{headerShown:false, animationEnabled: false}} name="Get Started" component={GetStarted} />
-              <Stack.Screen options={{headerShown:false, animationEnabled: false}} name="PNpage" component={PNPage} />
-              <Stack.Screen options={{headerShown:false, animationEnabled: false}} name="EmailPage" component={EmailPage} />
-              <Stack.Screen options={{headerShown:false, animationEnabled: false}} name="VerifyEmailPG" component={VerifyEmailPage} />
-              </Stack.Navigator>
-            </NavigationContainer>
+            
+              <NavigationContainer>
+                <Stack.Navigator >
+                
+                  <Stack.Screen options={{headerShown:false, animationEnabled: false}} name="Get Started" component={GetStarted} />
+                  <Stack.Screen options={{headerShown:false, animationEnabled: false}} name="PNpage" component={PNPage} />
+                  <Stack.Screen options={{headerShown:false, animationEnabled: false}} name="EmailPage" component={EmailPage} />
+                  <Stack.Screen options={{headerShown:false, animationEnabled: false}} name="VerifyEmailPG" component={VerifyEmailPage} />
+        
+                </Stack.Navigator>
+              </NavigationContainer>
+      </isPageVisitedContex.Provider>
     </SafeAreaView>
     
   );
