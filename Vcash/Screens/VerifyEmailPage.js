@@ -12,6 +12,7 @@ import {ENCRYPTION_KEY } from "@env"
 import { useState, useRef, useEffect, useContext } from 'react';
 import { useRoute } from '@react-navigation/native';
 import AutoInputFocus from '../assets/components/AutoInputFocus';
+import CD_Timer from '../assets/components/countDownTimer';
 
 const VerifyEmailPage = ({navigation}) => {
     // email pattern recorgnistion
@@ -125,6 +126,9 @@ const VerifyEmailPage = ({navigation}) => {
                                 />
                         </View>
                     </TouchableOpacity>
+
+                    <View style={{paddingLeft:scale(33), paddingTop:scale(10)}}><CD_Timer   count={120}/></View>
+                    
 
                     
                         <View style={[s`flex-row absolute bottom-10`, {width:"100%", justifyContent:"space-evenly"}]}>
