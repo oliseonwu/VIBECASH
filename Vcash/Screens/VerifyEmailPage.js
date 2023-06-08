@@ -11,21 +11,34 @@ import CryptoJS from 'react-native-crypto-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {REACT_APP_PUBLIC_KEY,REACT_APP_SERVICE_ID,
     REACT_APP_TEMPLATE_ID, ENCRYPTION_KEY, } from "@env"
-import { useState } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
+import { isPageVisitedContex } from '../assets/components/visitedPagesListContex';
 import { useRoute } from '@react-navigation/native';
 
 const VerifyEmailPage = ({navigation}) => {
     // email pattern recorgnistion
-    const pattern = /^[\w\d]+@[\w\d]+\.[\w\d]+$/;
     const route = useRoute()
     const email = route.params.email;
-    
+    const inputRef = useRef(); // reference to the input DOM obj 
     const {height, width} = useWindowDimensions();
     const[inputCode, setInputCode] = useState("")
+    let isPageAlreadyVisited =  useContext(isPageVisitedContex);
+    let visitPageFunc = isPageAlreadyVisited.visitPage
+    isPageAlreadyVisited = isPageAlreadyVisited.screenListVisitState.VerifyEmailPG;
     const scale = normalize;
+
+    if(!isPageAlreadyVisited){
+        // auto focus after some time
+        // after the view is visible
+        setTimeout(() => {
+            inputRef.current.focus()
+          }, 500);
+
+          visitPageFunc("VerifyEmailPG");
+    }
     
     const VerifyCode = () =>{
-            
+        Keyboard.dismiss()
     // Dycrypt saved data
        AsyncStorage.getItem(ENCRYPTION_KEY)
        .then((encryptedData) => {
@@ -45,40 +58,24 @@ const VerifyEmailPage = ({navigation}) => {
         console.log('DECRYPTION FAILED ...', error);
        });
         }
+        
     const handelInput = (code) =>{
-        var tempCode;
+        
 
         // we just added a character
         if(code.length > inputCode.length){
             
             if(code.length === 3){
                 code+="-";
-                console.log(code)
-            }
-            else{
-
-                // if(code.length === 4 && !code.charAt(3) === '-'){
-                //     tempCode = inputCode + "-" + code.charAt(3)
-                //     code = tempCode;
-                // }
             }
         }
         else{
             // we removed a character
             if(code.length === 3){
-                code = code.substring(0, 2)
-                
-            
-                
-                
+                code = code.substring(0, 2)    
             }
-            
-            
-        }
-        
+        }       
         setInputCode(code);
-        
-
     }
 
     
@@ -97,7 +94,7 @@ const VerifyEmailPage = ({navigation}) => {
                         </TouchableOpacity>
         }
         else{
-            return <TouchableOpacity  onPress={()=>sendEmail() }
+            return <TouchableOpacity  onPress={()=>VerifyCode()  }
             style={[{ width:"43.7%", height: scale(48), 
                 borderRadius: scale(19.43), justifyContent: 'center', alignItems: 'center',
                 backgroundColor:"#008751", opacity: 0.5}]} disabled={true} >
@@ -132,7 +129,7 @@ const VerifyEmailPage = ({navigation}) => {
                     <TouchableOpacity onPress={(e)=> e.stopPropagation} style={{width:"100%"}}>
 
                         <View style={[ {paddingTop: scale(7), paddingLeft:scale(33)}]}>
-                            <TextInput style={[{ fontFamily:
+                            <TextInput ref={inputRef} style={[{ fontFamily:
                             "Inter-Light", fontSize:scale(19), height: scale(50)}] }
                                     placeholder={'Enter Confirmation Code '}
                                     keyboardType='number-pad'
