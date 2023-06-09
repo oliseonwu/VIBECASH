@@ -10,10 +10,11 @@ import 'react-native-get-random-values'
 import CryptoJS from 'react-native-crypto-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {REACT_APP_PUBLIC_KEY,REACT_APP_SERVICE_ID,
-    REACT_APP_TEMPLATE_ID, ENCRYPTION_KEY, } from "@env"
+    REACT_APP_TEMPLATE_ID, ENCRYPTION_KEY, CURRENT_TIME_API_LINK } from "@env"
 import { useRef, useState, useContext } from 'react';
-import { isPageVisitedContex } from '../assets/components/visitedPagesListContex';
+import { fetchCurrentTime } from '../assets/utilities/CurrentTime';
 import AutoInputFocus from '../assets/components/AutoInputFocus';
+import axios from 'axios';
 
 const EmailPage = ({navigation}) => {
     // email pattern recorgnistion
@@ -22,9 +23,10 @@ const EmailPage = ({navigation}) => {
     const {height, width} = useWindowDimensions();
     const[email, setEmailState] = useState("")
     const inputRef = useRef(); // reference to the input DOM obj 
-    const scale = normalize;    
+    const scale = normalize;
+    let currentTimeStamp = null;    
     
-    const sendEmail = () =>{
+    const sendEmail = async() =>{
         Keyboard.dismiss()
         var randomNum = crypto.getRandomValues(new Uint8Array(4));
         // get random number
@@ -36,30 +38,37 @@ const EmailPage = ({navigation}) => {
        // create the code
        const code =randomNum[0]+"-"+randomNum[1]
 
+       // fetch current time
+       currentTimeStamp = await fetchCurrentTime();
+
        // encrypt code
-       encryptAndSaveCode(code);
+       
+      await encryptAndSaveCode(code+"~"+currentTimeStamp);
 
 //=========== Open when productionn ready =======================
        // send code to email
     //    emailjs.send(REACT_APP_SERVICE_ID,REACT_APP_TEMPLATE_ID
     //     ,{message: code, EMAIL: email}, REACT_APP_PUBLIC_KEY )
 
-    //     .then(function(response) {
+    //     .then(async function(response) {
     //         console.log("Email sent!");
-    // if(Platform.OS != "web"){
-    //     if(Keyboard.isVisible()){
-    //         setTimeout(()=>navigation.navigate(
-    //             'VerifyEmailPG',{email}),200)
-    //     }
-    //     else{
-    //         navigation.navigate(
-    //             'VerifyEmailPG',{email})
-    //     }
-    // }
-    // else{
-    //     navigation.navigate(
-    //         'VerifyEmailPG',{email})
-    // }
+
+
+    //         if(Platform.OS != "web"){
+
+    //             if(Keyboard.isVisible()){
+    //                 setTimeout(()=>navigation.navigate(
+    //                     'VerifyEmailPG',{email}),200)
+    //             }
+    //             else{
+    //                 navigation.navigate(
+    //                     'VerifyEmailPG',{email})
+    //             }
+    //         }
+    //         else{
+    //             navigation.navigate(
+    //                 'VerifyEmailPG',{email})
+    //         }
 
     //      }, function(error) {
     //         console.log('FAILED...', error);
@@ -67,6 +76,10 @@ const EmailPage = ({navigation}) => {
 
 //============= Remember to remove =============================
         console.log('Your VerificationCode is %s', code);
+        
+        
+
+        currentTimeStamp = await fetchCurrentTime();
 
         // if keyboard is open wait for the keyboard
         // to go off the screen before navigating
@@ -90,11 +103,13 @@ const EmailPage = ({navigation}) => {
 //==============================================================
         }
 
-    const encryptAndSaveCode = (code)=>{
+
+          
+    const encryptAndSaveCode = async (code)=>{
 
         const encryptedCode = CryptoJS.AES.encrypt(code, ENCRYPTION_KEY).toString();
        
-       AsyncStorage.setItem(ENCRYPTION_KEY, encryptedCode)
+      await AsyncStorage.setItem(ENCRYPTION_KEY, encryptedCode)
        .then(() => {
             // Data stored successfully
             console.log("Code saved Successfully!")
