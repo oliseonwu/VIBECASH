@@ -13,6 +13,7 @@ import { useState, useRef, useEffect, useContext } from 'react';
 import { useRoute } from '@react-navigation/native';
 import AutoInputFocus from '../assets/components/AutoInputFocus';
 import CD_Timer from '../assets/components/countDownTimer';
+import { fetchCurrentTime } from '../assets/utilities/CurrentTime';
 
 const VerifyEmailPage = ({navigation}) => {
     // email pattern recorgnistion
@@ -21,24 +22,46 @@ const VerifyEmailPage = ({navigation}) => {
     const inputRef = useRef(); // reference to the input DOM obj 
     const {height, width} = useWindowDimensions();
     const[inputCode, setInputCode] = useState("")
+    
     const scale = normalize;
     
-    const VerifyCode = () =>{
+    const VerifyCode = async() =>{
+        let currentTimeStamp = await fetchCurrentTime();
+        currentTimeStamp = new Date(currentTimeStamp);
+
         Keyboard.dismiss()
+
     // Dycrypt saved data
        AsyncStorage.getItem(ENCRYPTION_KEY)
        .then((encryptedData) => {
         
             const decryptedData = CryptoJS.AES.decrypt(
                 encryptedData, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
+            
+            // get the saved code and timestamp 
+            let [savedCode, storedTimestamp] = decryptedData.split('~');
+            storedTimestamp = new Date(storedTimestamp)
 
-       // Use the decrypted data
-       if(decryptedData == inputCode){
-         console.log("Email validated");
-       }
-       else{
-        console.log("Invalid Code!");
-       }
+            // get difference in times
+            const timeDifference = currentTimeStamp.getTime() - storedTimestamp.getTime();
+
+            // if greater than 0 and <= 2mins
+            if (timeDifference > 0 && timeDifference <= 2 * 60 * 1000) {
+                // code has not expired
+                
+                // Use the decrypted data
+                if(savedCode == inputCode){
+                    console.log("Email validated");
+                }
+                else{
+                console.log("Invalid Code!");
+                }
+            }
+            else{ // code expired
+                console.log("code has expired!")
+            }
+
+       
        })
        .catch((error) => {
         console.log('DECRYPTION FAILED ...', error);
@@ -62,6 +85,12 @@ const VerifyEmailPage = ({navigation}) => {
             }
         }       
         setInputCode(code);
+    }
+
+    const displayResendButton=()=>{
+        return <TouchableOpacity style={{
+                 marginLeft:normalize(20), justifyContent:"center", 
+                 alignContent:"center"}}><Text style={{fontFamily: "Inter-Bold", fontSize:normalize(16)}} >{"Resend Code?"}</Text></TouchableOpacity>
     }
 
     
@@ -127,25 +156,34 @@ const VerifyEmailPage = ({navigation}) => {
                         </View>
                     </TouchableOpacity>
 
-                    <View style={{paddingLeft:scale(33), paddingTop:scale(10)}}><CD_Timer   count={120}/></View>
-                    
-
-                    
-                        <View style={[s`flex-row absolute bottom-10`, {width:"100%", justifyContent:"space-evenly"}]}>
-
-                            <TouchableOpacity onPress={()=> navigation.goBack()} 
-                                style={[s`bg-black`, { width:"43.7%", height: scale(48), 
-                                    borderRadius: scale(19.43), justifyContent: 'center', alignItems: 'center',
-                                    }]} >
-
-                                    <Text style={[s`text-white text-center`,
-                                        {fontFamily: "Inter-Bold", fontSize: scale(17.93)}]}>
-                                            {"Back"}
-                                    </Text>
-                            </TouchableOpacity>
-
-                            {displayNextBtn()}
+                    <View style={[s`flex-row `, {alignContent:"center", height:normalize(45)}]}>
+                        <View style={{paddingLeft:scale(33), paddingTop:scale(10)}}>
+                            <CD_Timer   count={120}/>
+                            
                         </View>
+                        
+                        
+                        {displayResendButton()}
+                        
+                    </View>
+                    
+
+                    
+                    <View style={[s`flex-row absolute bottom-10`, {width:"100%", justifyContent:"space-evenly"}]}>
+
+                        <TouchableOpacity onPress={()=> navigation.goBack()} 
+                            style={[s`bg-black`, { width:"43.7%", height: scale(48), 
+                                borderRadius: scale(19.43), justifyContent: 'center', alignItems: 'center',
+                                }]} >
+
+                                <Text style={[s`text-white text-center`,
+                                    {fontFamily: "Inter-Bold", fontSize: scale(17.93)}]}>
+                                        {"Back"}
+                                </Text>
+                        </TouchableOpacity>
+
+                        {displayNextBtn()}
+                    </View>
                     
                 </View>
             </TouchableWithoutFeedback>
