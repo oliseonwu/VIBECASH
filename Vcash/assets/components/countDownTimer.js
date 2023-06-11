@@ -95,7 +95,7 @@ const CD_Timer = (props)=>{
        const currTimeObj = secondsToTime(countState);
 
        if(countState > 0){
-        return <Text>
+        return <Text style={{lineHeight:0}}>
         <Text style={{fontFamily:"Inter-Light", fontSize: normalize(17)}}>{"code expires in "}</Text>
         
         <Text style={{color:"#FF0000", fontFamily: "Inter-ExtraLight", fontSize:normalize(18)}}>
@@ -117,3 +117,4 @@ const CD_Timer = (props)=>{
 }
 
 export default CD_Timer;
+
