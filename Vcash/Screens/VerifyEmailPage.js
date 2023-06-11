@@ -1,4 +1,6 @@
 
+
+
 import { Text, View, TextInput, useWindowDimensions, 
     TouchableWithoutFeedback, Keyboard, TouchableOpacity,
     Platform, KeyboardAvoidingView} from 'react-native';
@@ -88,9 +90,9 @@ const VerifyEmailPage = ({navigation}) => {
     }
 
     const displayResendButton=()=>{
-        return <TouchableOpacity style={{
+        return <TouchableOpacity style={{ 
                  marginLeft:normalize(20), justifyContent:"center", 
-                 alignContent:"center"}}><Text style={{fontFamily: "Inter-Bold", fontSize:normalize(16)}} >{"Resend Code?"}</Text></TouchableOpacity>
+                 alignContent:"center", paddingTop:"0.3%" }}><Text style={{fontFamily: "Inter-Bold", fontSize:normalize(16), lineHeight:0}} >{"Resend Code?"}</Text></TouchableOpacity>
     }
 
     
@@ -156,13 +158,10 @@ const VerifyEmailPage = ({navigation}) => {
                         </View>
                     </TouchableOpacity>
 
-                    <View style={[s`flex-row `, {alignContent:"center", height:normalize(45)}]}>
-                        <View style={{paddingLeft:scale(33), paddingTop:scale(10)}}>
-                            <CD_Timer   count={120}/>
-                            
-                        </View>
+                    <View style={[s`flex-row `, {alignContent:"center",paddingTop:scale(10),
+                paddingLeft:scale(33) }]}>
                         
-                        
+                        <CD_Timer   count={120}/>
                         {displayResendButton()}
                         
                     </View>
@@ -195,3 +194,4 @@ const VerifyEmailPage = ({navigation}) => {
   };
 
 export default VerifyEmailPage;
+
