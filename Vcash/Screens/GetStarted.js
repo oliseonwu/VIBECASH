@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import ladyOnAChair from "../assets/img/LadyOnAChair.png"
 import normalize from '../assets/utilities/normalize';
 import ResizableContainer from '../assets/components/ResizableContainer';
-import CD_Timer from '../assets/components/countDownTimer';
+// import {TimeOutCalc, calculateDuration} from '../assets/utilities/TimeOutCalc';
 
 const GetStarted = ()=> {
   const navigation = useNavigation();
