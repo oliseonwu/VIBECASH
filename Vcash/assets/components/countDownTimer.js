@@ -1,78 +1,117 @@
 // this component should take in the amount 
 // of time the counter should run for
-import { useEffect, useRef, useState } from "react";
-import { Text } from "react-native";
+import { useEffect, useRef, useState,memo } from "react";
+import { Text, AppState } from "react-native";
 import normalize from "../utilities/normalize";
+import { fetchCurrentTime } from "../utilities/CurrentTime";
 
 const CD_Timer = (props)=>{
     // given seconds it returns hours
     // minutes and sec
-    let count = useRef(props.count)
+
+    // tracks the number of sec left
     let [countState, setCountState] = useState(props.count)
+    let backgroundTimestamp = useRef(null);
+    let foregroundTimestamp = useRef(null);
+    let isBackgroundModeOn = useRef(false) // background mode off by default
+
+    useEffect(()=>{ 
+        const subscription = AppState.addEventListener("change",handelAppStateChange);
+        return ()=>{
+         subscription.remove();
+     }
+     },[])
+
+     useEffect(()=>{
+        if(countState > 0 && AppState.currentState ==="active" || AppState.currentState ==="inactive" ){
+            
+           const timer = setTimeout (()=>{  
+            updateTimer();
+        }, 1000)
+
+        return (()=> {clearTimeout(timer)})
+    }
+    else{
+        // when the count goes to zero
+        // show the resend code bbutton
+        if(countState <=0){
+            props.displayResendCode(true);
+        }
+    }
+     }, [countState])
+    
+        
+    
+    const calculateDuration = (foregroundTime, backgroundTime) => {
+        
+        return Math.floor((foregroundTime.getTime() - backgroundTime.getTime())* 0.001);
+      };
 
     // this function causes a re-render
     // so when current render is done, 
     // it will render again
-    const updateTimer = ()=>{    
-        let temp = countState -1;
-        setCountState(temp);    
+    const updateTimer = ()=>{   
+        // console.log("count state while runing: ", countState);
+        setCountState((countState)=> countState - 1) 
+    }
+    
+    
+    const handelAppStateChange = async() =>{
+        let tempDate = null;
+
+        switch (AppState.currentState) {
+            case 'background':
+                // set background state ON
+                isBackgroundModeOn.current = true;
+                // save time stamp
+                tempDate = await fetchCurrentTime();
+                backgroundTimestamp.current = new Date(tempDate);
+
+                console.log("counter in background mode")
+                break;
+            case 'active':
+                onActive();
+            break;
+            default:
+                break;
+        }
     }
 
-    // Very bad!!!! because --- the first render keeps controlling countState value of later renders 
-    // useEffect(() => {
+    // once the app comes back to
+    // an active state 
+    const onActive = async()=>{
+        let tempDate = null;
+        let minimizedDuration = null;
+        // set background mode state off
+        isBackgroundModeOn.current = false;
         
-    //     const timer= setInterval(() => {           // this repeats.
-    //         if(countState > 0){                    
+        // if we have a background time Stamp
+        if (backgroundTimestamp.current) {
+            tempDate = await fetchCurrentTime();
+            foregroundTimestamp.current = new Date(tempDate);
+
+            // if we got the forground time stamp
+            if (foregroundTimestamp) {
+                const backgroundDuration = calculateDuration(
+                    foregroundTimestamp.current, backgroundTimestamp.current);
+
+                minimizedDuration = backgroundDuration;
                 
-    //             setCountState((countState)=>countState-1);       
-    //             // Notice the way we update this state var
-    //             // we take what ever was stored in the 
-    //             // countState as (time), then we update
-    //             // it "time-1"
-    //         }
-    //         else{
-    //             clearInterval(timer)
-    //         }
-            
-    //      }, 1000);
+                backgroundTimestamp.current = null;
+                foregroundTimestamp.current = null;
+                console.log('App Minimized for %s seconds\n', minimizedDuration);
 
-    //  }, []);
-    // This is bad because when we update a state value,
-    // it causes a re-render of the component but, in this 
-    // case, even tho we updated the state in this first render,
-    // the change doesn't update in the first render but in the 
-    // next render. So this means that the first render 
-    // will go on forever because of our setInterval and our 
-    // countState -->(that doesn't update until the next render). 
-    // on the front end the timer will update properly because
-    // of setCountState((countState)=>countState-1) which kind
-    // of keeps track of our through countState value but its not 
-    // propagated the change to every where in the project until the next render. 
-    // Remeber that the setCountState causes re-renders so the new re-
-    // renders will have the updated countState displayed but in the back-
-    // ground whats causing the rerenders is the zombie first render instead 
-    // of every new render caused by the previous render.
-   
+                // update count down based on how long we minimized the app
 
-    if(countState > 0){
-
-        const timer = setInterval(()=>{
-        updateTimer();
-
-        // we clear the setInterval because when the view is rerendered
-        // we dont want the previous render to cause more renders
-        // ONLY OUR CURRENT RENDER SHOULD CAUSE ONLY THE NEXT 
-        // RENDER!!(I mean the setInterval from the previous render will 
-        // still run unless we clearInterval(timer))
-        clearInterval(timer)
-    }, 1000);    
+                // CRITICAL: we updated the state as 
+                // setCountState((countState)=> countState - minimizedDuration);
+                // not setCountState(countState - minimizedDuration);
+                // because the first way get the most recent updates countState while
+                // the second way just gets the countState in the current state
+                setCountState((countState)=> countState - minimizedDuration);
+              }
+        }
     }
-
-    
-        
-    
-
-
 
     const secondsToTime = (secs)=>{
         let hours = Math.floor(secs / (60 * 60));
@@ -105,9 +144,7 @@ const CD_Timer = (props)=>{
        else{
         return<Text style={{color:"#FF0000", fontFamily:"Inter-Light",
          fontSize: normalize(17)}}>{"Code is expired."}</Text>
-       }
-       
-       
+       } 
     }
 
     return(
@@ -115,6 +152,7 @@ const CD_Timer = (props)=>{
     );
 
 }
+
 
 export default CD_Timer;
 

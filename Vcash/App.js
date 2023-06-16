@@ -10,6 +10,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import EmailPage from './Screens/EmailPage';
 import PNPage from './Screens/PNPage';
 import VerifyEmailPage from './Screens/VerifyEmailPage';
+import {getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword } from 'firebase/auth'
+// import { initializeApp } from 'firebase/app';
+
 
 import { isPageVisitedContex } from './assets/components/visitedPagesListContex';
 
@@ -19,6 +22,9 @@ const Stack = createStackNavigator();
 // hold the status of if a page has been visited or not
 
 export default function App() {
+
+
+// firebaseAuth.updateCurrentUser // usefull for setting the current signed in user
 
   const [screenListVisitState, setScreenListVisitState] = useState({"PNpage": false,
  'EmailPage': false, VerifyEmailPG: false});

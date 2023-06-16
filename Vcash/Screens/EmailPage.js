@@ -1,9 +1,10 @@
 
 import { Text, View, TextInput, useWindowDimensions, 
     TouchableWithoutFeedback, Keyboard, TouchableOpacity,
-    Platform, KeyboardAvoidingView} from 'react-native';
+    Platform, KeyboardAvoidingView, Alert, Image} from 'react-native';
 import { s } from "react-native-wind";
 import ResizableContainer from '../assets/components/ResizableContainer';
+import warningSign from "../assets/img/warning1.png"
 import normalize  from '../assets/utilities/normalize';
 import emailjs from '@emailjs/browser';
 import 'react-native-get-random-values'
@@ -14,20 +15,25 @@ import {REACT_APP_PUBLIC_KEY,REACT_APP_SERVICE_ID,
 import { useRef, useState, useContext } from 'react';
 import { fetchCurrentTime } from '../assets/utilities/CurrentTime';
 import AutoInputFocus from '../assets/components/AutoInputFocus';
-import axios from 'axios';
+import {firebase} from "../firebase-config"
+
 
 const EmailPage = ({navigation}) => {
     // email pattern recorgnistion
     const pattern = /^[\w\d]+@[\w\d]+\.[\w\d]+$/;
     
     const {height, width} = useWindowDimensions();
+    const [noNetworkSign, setNetworkSignStatus] = useState(false)
     const[email, setEmailState] = useState("")
+
     const inputRef = useRef(); // reference to the input DOM obj 
     const scale = normalize;
-    let currentTimeStamp = null;    
+       
     
-    const sendEmail = async() =>{
+    const onClickNextBtn = async () => {
         Keyboard.dismiss()
+        setNetworkSignStatus(false);
+
         var randomNum = crypto.getRandomValues(new Uint8Array(4));
         // get random number
 
@@ -39,67 +45,66 @@ const EmailPage = ({navigation}) => {
        const code =randomNum[0]+"-"+randomNum[1]
 
        // fetch current time
-       currentTimeStamp = await fetchCurrentTime();
+       const currentTimeStamp = await fetchCurrentTime();
 
        // encrypt code
-       
-      await encryptAndSaveCode(code+"~"+currentTimeStamp);
+       await encryptAndSaveCode(code+"~"+currentTimeStamp);
+        
+       // if we can't get the date from the internet
+       // don't allow this process to go foward
+       if(currentTimeStamp != null){
+
+            await sendEmail(code)
+                .then(async()=>{
+
+                // record that we sent to this email at a certain time
+            //    await recordEmailAndTimeStampInDB(email,new Date(currentTimeStamp))
+
+                // if keyboard is open wait for the keyboard
+                // to go off the screen before navigating
+                if(Platform.OS != "web"){
+                    if(Keyboard.isVisible()){
+                        setTimeout(()=>navigation.navigate(
+                            'VerifyEmailPG',{email}),200)
+                    }
+                    else{
+                        navigation.navigate(
+                            'VerifyEmailPG',{email})
+                    }
+                }
+                else{
+                    navigation.navigate(
+                        'VerifyEmailPG',{email})
+                }
+            }).catch(()=>{
+                setNetworkSignStatus(true)
+            })
+       }
+       else{
+        setNetworkSignStatus(true)
+       }
+        
+    }
+
+    const sendEmail = async(code) =>{
+        
 
 //=========== Open when productionn ready =======================
        // send code to email
-    //    emailjs.send(REACT_APP_SERVICE_ID,REACT_APP_TEMPLATE_ID
+    //    await emailjs.send(REACT_APP_SERVICE_ID,REACT_APP_TEMPLATE_ID
     //     ,{message: code, EMAIL: email}, REACT_APP_PUBLIC_KEY )
 
     //     .then(async function(response) {
     //         console.log("Email sent!");
 
-
-    //         if(Platform.OS != "web"){
-
-    //             if(Keyboard.isVisible()){
-    //                 setTimeout(()=>navigation.navigate(
-    //                     'VerifyEmailPG',{email}),200)
-    //             }
-    //             else{
-    //                 navigation.navigate(
-    //                     'VerifyEmailPG',{email})
-    //             }
-    //         }
-    //         else{
-    //             navigation.navigate(
-    //                 'VerifyEmailPG',{email})
-    //         }
-
     //      }, function(error) {
-    //         console.log('FAILED...', error);
+    //         console.log('FAILED...Error sending email', error);
+    //         throw TypeError("Email not sent")
     //      });
+    
 
 //============= Remember to remove =============================
-        console.log('Your VerificationCode is %s', code);
-        
-        
-
-        currentTimeStamp = await fetchCurrentTime();
-
-        // if keyboard is open wait for the keyboard
-        // to go off the screen before navigating
-        if(Platform.OS != "web"){
-            if(Keyboard.isVisible()){
-                setTimeout(()=>navigation.navigate(
-                    'VerifyEmailPG',{email}),200)
-            }
-            else{
-                navigation.navigate(
-                    'VerifyEmailPG',{email})
-            }
-        }
-        else{
-            navigation.navigate(
-                'VerifyEmailPG',{email})
-        }
-        
-        
-            
+        console.log('Your VerificationCode is %s', code);        
 //==============================================================
         }
 
@@ -117,12 +122,12 @@ const EmailPage = ({navigation}) => {
        .catch((error) => {
             console.log('FAILED to encrypt Email code ...', error);
        });
-
         }
+
     const displayNextBtn = () =>{
         // if there is an entry
         if(pattern.test(email)){
-          return  <TouchableOpacity  onPress={()=>sendEmail() }
+          return  <TouchableOpacity  onPress={async()=>onClickNextBtn() }
                             style={[{ width:"43.7%", height: scale(48), 
                                 borderRadius: scale(19.43), justifyContent: 'center', alignItems: 'center',
                                 backgroundColor:"#008751"}]} >
@@ -146,6 +151,40 @@ const EmailPage = ({navigation}) => {
         </TouchableOpacity>
         }
     }
+
+    const displayNetworkSign = ()=>{
+        if(noNetworkSign){
+            return <View style={{marginLeft:scale(33), flexDirection:"row", alignItems:"center", 
+              width:"100%", height: scale("17")}}>
+            <View style={{ width:scale(20), height: "100%", paddingRight: scale(6)}}>
+                <Image source={warningSign} style={{resizeMode:"contain",width: "100%", height: "100%",
+            }}/>
+            </View>
+
+            <Text style={{fontFamily:"Inter-Light", fontSize:scale(15), color:"#FF0000"}}>No network service detected</Text>
+             </View>
+        }
+       
+       
+        
+    }
+
+    // SAVES the email and time stamp in db
+    const recordEmailAndTimeStampInDB = async (email,date )=>{
+
+    // Convert the date to a Firestore Timestamp
+    const timestamp = firebase.firestore.Timestamp.fromDate(date);
+
+       await firebase.firestore() // get the firestore db
+        .collection("emailCodeTracker") // specify the db table
+        .add({email,timestamp})
+        .then(()=>{
+            console.log('New sent email recorded in db for ', email)
+        })
+        .catch((error)=>{
+            console("Error adding email and timestap: "+ error)
+        })
+    }
     
     return (
         <ResizableContainer width={width}>
@@ -167,10 +206,13 @@ const EmailPage = ({navigation}) => {
                             "Inter-Light", fontSize:scale(19), height: scale(50)}] }
                                     placeholder={'Email Address'}
                                     keyboardType="email-address"
+                                    value={email}
                                     onChangeText={(value)=> setEmailState(value)}
                                 />
                         </View>
                     </TouchableOpacity>
+
+                    {displayNetworkSign()}
 
                     
                         <View style={[s`flex-row absolute bottom-10`, {width:"100%", justifyContent:"space-evenly"}]}>
