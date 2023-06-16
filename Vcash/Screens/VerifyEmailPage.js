@@ -3,11 +3,12 @@
 
 import { Text, View, TextInput, useWindowDimensions, 
     TouchableWithoutFeedback, Keyboard, TouchableOpacity,
-    Platform, KeyboardAvoidingView} from 'react-native';
+    Platform, KeyboardAvoidingView, Image} from 'react-native';
 import { s } from "react-native-wind";
 import ResizableContainer from '../assets/components/ResizableContainer';
 import normalize  from '../assets/utilities/normalize';
 import 'react-native-get-random-values'
+import warningSign from "../assets/img/warning1.png"
 import CryptoJS from 'react-native-crypto-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ENCRYPTION_KEY } from "@env"
@@ -17,58 +18,69 @@ import AutoInputFocus from '../assets/components/AutoInputFocus';
 import CD_Timer from '../assets/components/countDownTimer';
 import { fetchCurrentTime } from '../assets/utilities/CurrentTime';
 
+
 const VerifyEmailPage = ({navigation}) => {
     // email pattern recorgnistion
     const route = useRoute()
     const email = route.params.email;
     const inputRef = useRef(); // reference to the input DOM obj 
     const {height, width} = useWindowDimensions();
+    const [noNetworkSign, setNetworkSignStatus] = useState(false)
+    const [displayResendCode, setdisplayResendCode] = useState(false)
     const[inputCode, setInputCode] = useState("")
     
     const scale = normalize;
     
     const VerifyCode = async() =>{
+        setNetworkSignStatus(false);
         let currentTimeStamp = await fetchCurrentTime();
-        currentTimeStamp = new Date(currentTimeStamp);
+        console.log(currentTimeStamp)
+        if(currentTimeStamp != null){
+            currentTimeStamp = new Date(currentTimeStamp);
 
-        Keyboard.dismiss()
+            Keyboard.dismiss()
 
-    // Dycrypt saved data
-       AsyncStorage.getItem(ENCRYPTION_KEY)
-       .then((encryptedData) => {
-        
-            const decryptedData = CryptoJS.AES.decrypt(
-                encryptedData, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
-            
-            // get the saved code and timestamp 
-            let [savedCode, storedTimestamp] = decryptedData.split('~');
-            storedTimestamp = new Date(storedTimestamp)
-
-            // get difference in times
-            const timeDifference = currentTimeStamp.getTime() - storedTimestamp.getTime();
-
-            // if greater than 0 and <= 2mins
-            if (timeDifference > 0 && timeDifference <= 2 * 60 * 1000) {
-                // code has not expired
+            // Dycrypt saved data
+            AsyncStorage.getItem(ENCRYPTION_KEY)
+            .then((encryptedData) => {
                 
-                // Use the decrypted data
-                if(savedCode == inputCode){
-                    console.log("Email validated");
-                }
-                else{
-                console.log("Invalid Code!");
-                }
-            }
-            else{ // code expired
-                console.log("code has expired!")
-            }
+                const decryptedData = CryptoJS.AES.decrypt(
+                    encryptedData, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
+                
+                // get the saved code and timestamp 
+                let [savedCode, storedTimestamp] = decryptedData.split('~');
+                storedTimestamp = new Date(storedTimestamp)
 
-       
-       })
-       .catch((error) => {
-        console.log('DECRYPTION FAILED ...', error);
-       });
+                // get difference in times
+                const timeDifference = currentTimeStamp.getTime() - storedTimestamp.getTime();
+
+                // if greater than 0 and <= 2mins
+                if (timeDifference > 0 && timeDifference <= 2 * 60 * 1000) {
+                    // code has not expired
+                    
+                    // Use the decrypted data
+                    if(savedCode == inputCode){
+                        console.log("Email validated");
+                    }
+                    else{
+                    console.log("Invalid Code!");
+                    }
+                }
+                else{ // code expired
+                    console.log("code has expired!")
+                }
+
+            
+            })
+            .catch((error) => {
+                console.log('DECRYPTION FAILED ...', error);
+            });
         }
+        else{
+            setNetworkSignStatus(true);
+        }
+        
+    }
         
     const handelInput = (code) =>{
         
@@ -90,9 +102,15 @@ const VerifyEmailPage = ({navigation}) => {
     }
 
     const displayResendButton=()=>{
-        return <TouchableOpacity style={{ 
-                 marginLeft:normalize(20), justifyContent:"center", 
-                 alignContent:"center", paddingTop:"0.3%" }}><Text style={{fontFamily: "Inter-Bold", fontSize:normalize(16), lineHeight:0}} >{"Resend Code?"}</Text></TouchableOpacity>
+        if(displayResendCode){
+            return <TouchableOpacity style={{ 
+                marginLeft:normalize(20), justifyContent:"center", 
+                alignContent:"center", paddingTop:"0.3%" }}>
+                    <Text style={{fontFamily: "Inter-Bold", 
+                    fontSize:normalize(16), lineHeight:0}} >
+                        {"Resend Code?"}</Text></TouchableOpacity>
+        }
+        
     }
 
     
@@ -122,6 +140,20 @@ const VerifyEmailPage = ({navigation}) => {
                 </Text>
         </TouchableOpacity>
         }
+    }
+
+    const displayNetworkSign = ()=>{
+        if(noNetworkSign){
+            return <View style={{marginLeft:scale(33), flexDirection:"row", alignItems:"center", 
+              width:"100%", height: scale("17"), marginTop:normalize(22)}}>
+            <View style={{ width:scale(20), height: "100%", paddingRight: scale(6)}}>
+                <Image source={warningSign} style={{resizeMode:"contain",width: "100%", height: "100%",
+            }}/>
+            </View>
+
+            <Text style={{fontFamily:"Inter-Light", fontSize:scale(15), color:"#FF0000"}}>No network service detected</Text>
+             </View>
+        }    
     }
 
     return (
@@ -158,13 +190,16 @@ const VerifyEmailPage = ({navigation}) => {
                         </View>
                     </TouchableOpacity>
 
+                    
                     <View style={[s`flex-row `, {alignContent:"center",paddingTop:scale(10),
                 paddingLeft:scale(33) }]}>
                         
-                        <CD_Timer   count={120}/>
+                        <CD_Timer   count={120} displayResendCode = {setdisplayResendCode} />
                         {displayResendButton()}
                         
                     </View>
+
+                    {displayNetworkSign()}
                     
 
                     
