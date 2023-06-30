@@ -25,6 +25,10 @@ const EmailPage = ({navigation}) => {
     const {height, width} = useWindowDimensions();
     const [noNetworkSign, setNetworkSignStatus] = useState(false)
     const[email, setEmailState] = useState("")
+    // how many times we automatically try to save the 
+    // time stamp of when we sent the email, in the db
+    // in case of network issues.
+    const MAX_RETRY_COUNT = 3; 
 
     const inputRef = useRef(); // reference to the input DOM obj 
     const scale = normalize;
@@ -32,7 +36,11 @@ const EmailPage = ({navigation}) => {
     
     const onClickNextBtn = async () => {
         Keyboard.dismiss()
-        setNetworkSignStatus(false);
+
+        if(noNetworkSign){ // if ON
+            setNetworkSignStatus(false); // turn OFF
+        }
+        
 
         var randomNum = crypto.getRandomValues(new Uint8Array(4));
         // get random number
@@ -47,18 +55,20 @@ const EmailPage = ({navigation}) => {
        // fetch current time
        const currentTimeStamp = await fetchCurrentTime();
 
-       // encrypt code
-       await encryptAndSaveCode(code+"~"+currentTimeStamp);
+       
         
        // if we can't get the date from the internet
        // don't allow this process to go foward
        if(currentTimeStamp != null){
+            // encrypt code
+            await encryptAndSaveCode(code+"~"+currentTimeStamp);
 
             await sendEmail(code)
                 .then(async()=>{
 
                 // record that we sent to this email at a certain time
-            //    await recordEmailAndTimeStampInDB(email,new Date(currentTimeStamp))
+                // (we woun't wait for this step to be compelete)
+            //    recordEmailAndTimeStampInDB(email,new Date(currentTimeStamp))
 
                 // if keyboard is open wait for the keyboard
                 // to go off the screen before navigating
@@ -170,20 +180,31 @@ const EmailPage = ({navigation}) => {
     }
 
     // SAVES the email and time stamp in db
-    const recordEmailAndTimeStampInDB = async (email,date )=>{
+    const recordEmailAndTimeStampInDB = async (email,date, retryCount=0)=>{
 
     // Convert the date to a Firestore Timestamp
     const timestamp = firebase.firestore.Timestamp.fromDate(date);
 
-       await firebase.firestore() // get the firestore db
+    if(retryCount >= MAX_RETRY_COUNT){
+        console.log('Maximum retry count exceeded. Failed to save email and timestamp in DB.');
+    }
+    else{
+        await firebase.firestore() // get the firestore db
         .collection("emailCodeTracker") // specify the db table
         .add({email,timestamp})
         .then(()=>{
             console.log('New sent email recorded in db for ', email)
         })
         .catch((error)=>{
-            console("Error adding email and timestap: "+ error)
+            console("Error saving sent email and timestamp to the DB: "+ error)
+
+            // if there is an error saving info to DB retry again
+            setTimeout(()=>{
+                console.log("retrying to save set email and timestamp again..");
+                recordEmailAndTimeStampInDB(email, date, retryCount+ 1);
+            }, 2000)
         })
+    } 
     }
     
     return (

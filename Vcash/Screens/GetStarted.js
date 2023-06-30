@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import ladyOnAChair from "../assets/img/LadyOnAChair.png"
 import normalize from '../assets/utilities/normalize';
 import ResizableContainer from '../assets/components/ResizableContainer';
+import { useEffect } from 'react';
 // import {TimeOutCalc, calculateDuration} from '../assets/utilities/TimeOutCalc';
 
 const GetStarted = ()=> {
@@ -30,6 +31,16 @@ const GetStarted = ()=> {
       }
               
      }
+
+     const recurssion = ()=>{
+        console.log("hello");
+        const interval = setTimeout(()=>{
+            recurssion()
+        },2000)
+     } 
+    //  useEffect(()=>{
+    //    recurssion()
+    //  },[])
         return (  
           <ResizableContainer width={width}>
             

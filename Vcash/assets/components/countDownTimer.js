@@ -41,7 +41,6 @@ const CD_Timer = (props)=>{
      }, [countState])
     
         
-    
     const calculateDuration = (foregroundTime, backgroundTime) => {
         
         return Math.floor((foregroundTime.getTime() - backgroundTime.getTime())* 0.001);
