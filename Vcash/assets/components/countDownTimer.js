@@ -31,13 +31,13 @@ const CD_Timer = (props)=>{
 
         return (()=> {clearTimeout(timer)})
     }
-    else{
-        // when the count goes to zero
-        // show the resend code bbutton
-        if(countState <=0){
-            props.displayResendCode(true);
-        }
-    }
+    // else{
+    //     // // when the count goes to zero
+    //     // // show the resend code bbutton
+    //     // if(countState <=0){
+    //     //     props.displayResendCode(true);
+    //     // }
+    // }
      }, [countState])
     
         
@@ -131,10 +131,12 @@ const CD_Timer = (props)=>{
     };
 
     const displayTimer = ()=>{
+        
        const currTimeObj = secondsToTime(countState);
-
+       
        if(countState > 0){
-        return <Text style={{lineHeight:0}}>
+        
+        return <Text >
         <Text style={{fontFamily:"Inter-Light", fontSize: normalize(17)}}>{"code expires in "}</Text>
         
         <Text style={{color:"#FF0000", fontFamily: "Inter-ExtraLight", fontSize:normalize(18)}}>

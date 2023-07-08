@@ -26,6 +26,26 @@ const normalize = (size) => {
       height *= (60/100)
     }
 
+    if(ratio < 2){
+      if (width < 360) {
+        size *= 0.70; //test
+      } 
+      else if (height < 300) {
+        size *= 0.40; //test
+      }
+      else if (height < 500) {
+        size *= 0.50; //test
+      }
+      else if (height < 667) {
+        size *= 0.80; //test
+      } else if (height >= 667 && height <= 735) {
+        size *= 0.90; // Tested
+      }
+      else{
+          size *= 1.0; // tested
+      }
+    }
+
     if (ratio >= 2 && ratio < 3) { // from 2 to 2.99
       if (width < 360) {
           size *= 0.6; //test
