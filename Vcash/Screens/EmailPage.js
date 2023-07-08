@@ -18,6 +18,7 @@ import AutoInputFocus from '../assets/components/AutoInputFocus';
 import {firebase} from "../firebase-config"
 
 
+
 const EmailPage = ({navigation}) => {
     // email pattern recorgnistion
     const pattern = /^[\w\d]+@[\w\d]+\.[\w\d]+$/;
@@ -28,21 +29,31 @@ const EmailPage = ({navigation}) => {
 
     const inputRef = useRef(); // reference to the input DOM obj 
     const scale = normalize;
-       
+    
+    const  getRandomNumberInRange= (min, max)=> {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+    
+    // makes sure the numbber is of length 3 
+    function formatNumber(number) {
+        return String(number).padStart(3, '0');
+    }
+
+    
     
     const onClickNextBtn = async () => {
         Keyboard.dismiss()
-        setNetworkSignStatus(false);
 
-        var randomNum = crypto.getRandomValues(new Uint8Array(4));
+        if(noNetworkSign){ // if ON
+            setNetworkSignStatus(false); // turn OFF
+        }
+
         // get random number
-
-        // make sure random num is greater than 100
-       randomNum[0] = randomNum[0] < 100 ? randomNum[0]+ 100 :  randomNum[0];
-       randomNum[1] = randomNum[1] < 100 ? randomNum[1]+ 100 :  randomNum[1];
+        const randNum1 = formatNumber(getRandomNumberInRange(0, 999));
+        const randNum2 = formatNumber(getRandomNumberInRange(0, 999));
 
        // create the code
-       const code =randomNum[0]+"-"+randomNum[1]
+       const code =randNum1+"-"+randNum2;
 
        // fetch current time
        const currentTimeStamp = await fetchCurrentTime();
@@ -189,7 +200,8 @@ const EmailPage = ({navigation}) => {
     return (
         <ResizableContainer width={width}>
             <AutoInputFocus pageName={"EmailPage"} inputRef = {inputRef}  />
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={25} 
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+            keyboardVerticalOffset={ Platform.OS === 'ios'? scale(25) : scale(0)} 
             style={{height:"100%"}}>
             <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>
 

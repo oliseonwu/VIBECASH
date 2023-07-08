@@ -41,7 +41,8 @@ const PNPage = ({navigation}) => {
     
         <ResizableContainer width={width}>
             <AutoInputFocus pageName={"PNpage"} inputRef = {inputRef}  />
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={25} 
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+            keyboardVerticalOffset={ Platform.OS === 'ios'? scale(25) : scale(0)} 
             style={{height:"100%"}}>
                 <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()} >
 

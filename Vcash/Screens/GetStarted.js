@@ -30,6 +30,8 @@ const GetStarted = ()=> {
       }
               
      }
+
+     
         return (  
           <ResizableContainer width={width}>
             
