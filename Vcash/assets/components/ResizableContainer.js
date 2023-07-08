@@ -11,7 +11,7 @@ const ResizableContainer = (props) => {
      
      
 
-    return (<View style= {styles.container}>
+    return (<View  style= {styles.container}>
         {/* Containers that sets it children views centered 
         horizontally and vertically for larger screens */}
         
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     },
     fullScreenSize:{
       width: "100%",
-      height: "100%"
+      height: "100%",
     },
     
   });

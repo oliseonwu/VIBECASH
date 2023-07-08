@@ -26,7 +26,7 @@ const VerifyEmailPage = ({navigation}) => {
     const inputRef = useRef(); // reference to the input DOM obj 
     const {height, width} = useWindowDimensions();
     const [noNetworkSign, setNetworkSignStatus] = useState(false)
-    const [displayResendCode, setdisplayResendCode] = useState(false)
+    
     const[inputCode, setInputCode] = useState("")
     
     const scale = normalize;
@@ -90,28 +90,31 @@ const VerifyEmailPage = ({navigation}) => {
             
             if(code.length === 3){
                 code+="-";
+                setInputCode((inputCode)=> inputCode+"-")
             }
         }
         else{
             // we removed a character
             if(code.length === 3){
-                code = code.substring(0, 2)    
+                // code = code.substring(0, 2)    
+                setInputCode((inputCode)=> inputCode.substring(0,2));
             }
         }       
         setInputCode(code);
     }
 
-    const displayResendButton=()=>{
-        if(displayResendCode){
-            return <TouchableOpacity style={{ 
-                marginLeft:normalize(20), justifyContent:"center", 
-                alignContent:"center", paddingTop:"0.3%" }}>
-                    <Text style={{fontFamily: "Inter-Bold", 
-                    fontSize:normalize(16), lineHeight:0}} >
-                        {"Resend Code?"}</Text></TouchableOpacity>
-        }
+    // const displayResendButton=()=>{
+    //     if(displayResendCode){
+            
+    //         return <TouchableOpacity style={{ 
+    //             marginLeft:normalize(20), justifyContent:"center", 
+    //             alignContent:"center", paddingTop:"0.3%" }}>
+    //                 <Text style={{fontFamily: "Inter-Bold", 
+    //                 fontSize:normalize(16)}} >
+    //                     {"Resend Code?"}</Text></TouchableOpacity>
+    //     }
         
-    }
+    // }
 
     
     const displayNextBtn = () =>{
@@ -159,7 +162,8 @@ const VerifyEmailPage = ({navigation}) => {
     return (
         <ResizableContainer width={width}>
             <AutoInputFocus pageName={"VerifyEmailPG"} inputRef = {inputRef}  />
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={25} 
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+            keyboardVerticalOffset={ Platform.OS === 'ios'? scale(25) : scale(0)} 
             style={{height:"100%"}}>
             <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>
 
@@ -176,11 +180,12 @@ const VerifyEmailPage = ({navigation}) => {
                         <Text style={{fontFamily:"Inter-Bold"}}>{email}</Text>
                     </Text>
                     
-                    <TouchableOpacity onPress={(e)=> e.stopPropagation} style={{width:"100%"}}>
+                    <TouchableOpacity onPress={(e)=> e.stopPropagation} 
+                    style={{width:"100%",height: scale(100)}}>
 
-                        <View style={[ {paddingTop: scale(7), paddingLeft:scale(33)}]}>
+                        <View style={[ {paddingLeft:scale(33)}]}>
                             <TextInput ref={inputRef} style={[{ fontFamily:
-                            "Inter-Light", fontSize:scale(19), height: scale(50)}] }
+                            "Inter-Light", fontSize:scale(25), height: "100%"}] }
                                     placeholder={'Enter Confirmation Code '}
                                     keyboardType='number-pad'
                                     onChangeText={(value)=> handelInput(value)}
@@ -191,11 +196,18 @@ const VerifyEmailPage = ({navigation}) => {
                     </TouchableOpacity>
 
                     
-                    <View style={[s`flex-row `, {alignContent:"center",paddingTop:scale(10),
+                    <View style={[s`flex-row`, {alignContent:"center",paddingTop:scale(10),
                 paddingLeft:scale(33) }]}>
                         
-                        <CD_Timer   count={120} displayResendCode = {setdisplayResendCode} />
-                        {displayResendButton()}
+                        <CD_Timer   count={120} />
+                        <TouchableOpacity style={{ 
+                            marginLeft:normalize(20), justifyContent:"center", 
+                            alignContent:"center", paddingTop:"0.3%" }}>
+                                
+                                <Text style={{fontFamily: "Inter-Bold", 
+                                fontSize:normalize(16), textDecorationLine:"underline"}} >
+                                    {"Resend Code"}</Text>
+                        </TouchableOpacity>
                         
                     </View>
 
@@ -206,7 +218,7 @@ const VerifyEmailPage = ({navigation}) => {
                     <View style={[s`flex-row absolute bottom-10`, {width:"100%", justifyContent:"space-evenly"}]}>
 
                         <TouchableOpacity onPress={()=> navigation.goBack()} 
-                            style={[s`bg-black`, { width:"43.7%", height: scale(48), 
+                            style= {[s`bg-black`, { width:"43.7%", height: scale(48), 
                                 borderRadius: scale(19.43), justifyContent: 'center', alignItems: 'center',
                                 }]} >
 
