@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import { StrictMode, createContext, useRef, useState } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, SafeAreaView, useWindowDimensions } from 'react-native';
+// import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, SafeAreaView, StatusBar } from 'react-native';
 import { s } from "react-native-wind";
 import { useFonts } from 'expo-font';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -11,6 +11,7 @@ import EmailPage from './Screens/EmailPage';
 import PNPage from './Screens/PNPage';
 import VerifyEmailPage from './Screens/VerifyEmailPage';
 import {getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword } from 'firebase/auth'
+
 // import { initializeApp } from 'firebase/app';
 
 
@@ -58,8 +59,11 @@ export default function App() {
     <SafeAreaView style={[s`bg-white`, {width:"100%", height:"100%"}]}>
       <isPageVisitedContex.Provider value={{screenListVisitState, visitPage}}>
   
+  {/* Set the back ground color of the status bar
+      and the text in the status bar */}
             <StatusBar
-                barStyle={"dark-content"}>
+                backgroundColor={'white'}
+                barStyle={'dark-content'}>
             </StatusBar>
             
               <NavigationContainer>
