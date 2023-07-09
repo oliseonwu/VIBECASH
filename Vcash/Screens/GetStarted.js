@@ -8,6 +8,8 @@ import normalize from '../assets/utilities/normalize';
 import ResizableContainer from '../assets/components/ResizableContainer';
 // import {TimeOutCalc, calculateDuration} from '../assets/utilities/TimeOutCalc';
 
+
+import Parse from "../parse-config"
 const GetStarted = ()=> {
   const navigation = useNavigation();
 

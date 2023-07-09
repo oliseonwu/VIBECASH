@@ -16,6 +16,7 @@ import { useRef, useState, useContext } from 'react';
 import { fetchCurrentTime } from '../assets/utilities/CurrentTime';
 import AutoInputFocus from '../assets/components/AutoInputFocus';
 import {firebase} from "../firebase-config"
+import Parse from "../parse-config";
 
 
 
@@ -26,6 +27,7 @@ const EmailPage = ({navigation}) => {
     const {height, width} = useWindowDimensions();
     const [noNetworkSign, setNetworkSignStatus] = useState(false)
     const[email, setEmailState] = useState("")
+    
 
     const inputRef = useRef(); // reference to the input DOM obj 
     const scale = normalize;
@@ -69,7 +71,7 @@ const EmailPage = ({navigation}) => {
                 .then(async()=>{
 
                 // record that we sent to this email at a certain time
-            //    await recordEmailAndTimeStampInDB(email,new Date(currentTimeStamp))
+                //await recordEmailAndTimeStampInDB(email,new Date(currentTimeStamp))
 
                 // if keyboard is open wait for the keyboard
                 // to go off the screen before navigating
@@ -174,27 +176,26 @@ const EmailPage = ({navigation}) => {
 
             <Text style={{fontFamily:"Inter-Light", fontSize:scale(15), color:"#FF0000"}}>No network service detected</Text>
              </View>
-        }
-       
-       
-        
+        }    
     }
 
     // SAVES the email and time stamp in db
     const recordEmailAndTimeStampInDB = async (email,date )=>{
 
-    // Convert the date to a Firestore Timestamp
-    const timestamp = firebase.firestore.Timestamp.fromDate(date);
+    try{
+        //create a new Parse Object instance
+      const newPerson = new Parse.Object('userRestrictions');
 
-       await firebase.firestore() // get the firestore db
-        .collection("emailCodeTracker") // specify the db table
-        .add({email,timestamp})
-        .then(()=>{
-            console.log('New sent email recorded in db for ', email)
-        })
-        .catch((error)=>{
-            console("Error adding email and timestap: "+ error)
-        })
+      //define the attributes you want for your Object
+      newPerson.set('email', email);
+
+      //save it on Back4App Data Store
+      await newPerson.save();
+    }
+    catch(error){
+        console.log('Error saving new userRestrictions: ', error);
+    }
+
     }
     
     return (
@@ -203,6 +204,7 @@ const EmailPage = ({navigation}) => {
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
             keyboardVerticalOffset={ Platform.OS === 'ios'? scale(25) : scale(0)} 
             style={{height:"100%"}}>
+                
             <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>
 
                 <View style={[s`bg-white relative`, {height:'100%'}]}>
