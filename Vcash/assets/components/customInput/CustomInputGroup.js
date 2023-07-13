@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Keyboard } from 'react-native'
+import { View, Text, StyleSheet, Keyboard, Platform } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import InputCellMemo from './InputCell'
 import {default as scale} from '../../utilities/normalize';
@@ -121,9 +121,12 @@ const CustomInputGroup = (props) => {
     
   }
   const onAnimationBegin = ()=>{
-    Haptics.notificationAsync(
-      Haptics.NotificationFeedbackType.Error
-    )
+
+    if(Platform.OS !== "web"){
+      Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Error
+      )
+    }
   }
 
   const onAnimationEnd = ()=>{

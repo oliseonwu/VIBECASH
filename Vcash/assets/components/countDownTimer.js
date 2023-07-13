@@ -137,15 +137,18 @@ const CD_Timer = (props)=>{
        if(countState > 0){
         
         return <Text >
-        <Text style={{fontFamily:"Inter-Light", fontSize: normalize(17)}}>{"code expires in "}</Text>
+        <Text style={{fontFamily:"Inter-Light", fontSize: normalize(18), color:"#A5A5A5"}}>{"code expires in: "}</Text>
         
-        <Text style={{color:"#FF0000", fontFamily: "Inter-ExtraLight", fontSize:normalize(18)}}>
+        <Text style={{color:"#6EC592", fontFamily: "Inter-ExtraLight", fontSize:normalize(18)}}>
         {currTimeObj.m+":"+ (currTimeObj.s< 10? "0"+currTimeObj.s: currTimeObj.s)}</Text>
        </Text>
        }
        else{
-        return<Text style={{color:"#FF0000", fontFamily:"Inter-Light",
-         fontSize: normalize(17)}}>{"Code is expired."}</Text>
+        return<Text >
+        <Text style={{fontFamily:"Inter-Light", fontSize: normalize(18), color:"#A5A5A5"}}>{"code expires in: "}</Text>
+        
+        <Text style={{color:"#FF0000", fontFamily: "Inter-ExtraLight", fontSize:normalize(18)}}>0:00</Text>
+       </Text>
        } 
     }
 
