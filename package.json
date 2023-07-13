@@ -1,1 +1,5 @@
-{}
+{
+  "dependencies": {
+    "react-native-reanimated": "^3.3.0"
+  }
+}

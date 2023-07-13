@@ -4,6 +4,7 @@ import { s } from "react-native-wind";
 import {scale} from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 import { position } from 'react-native-wind/dist/styles/layout/position';
+import { flex } from 'react-native-wind/dist/styles/flex/flex';
 
 const ResizableContainer = (props) => {
 
@@ -16,7 +17,7 @@ const ResizableContainer = (props) => {
         horizontally and vertically for larger screens */}
         
             <View style={[s`bg-white`, props.width < REGULAR_SCREEN_WIDTH ? 
-            styles.fullScreenSize : styles.defaultScreenSize ]}>
+            styles.fullScreenSize : styles.defaultScreenSize ] }>
                 {/* set the width and height of the screen */}
 
                 {props.children}
