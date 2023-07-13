@@ -1,11 +1,11 @@
 
 import { Text, View, TextInput, useWindowDimensions, 
     TouchableWithoutFeedback, Keyboard, TouchableOpacity,
-    Platform, KeyboardAvoidingView, Alert, Image} from 'react-native';
+    Platform, KeyboardAvoidingView, StyleSheet, Image} from 'react-native';
 import { s } from "react-native-wind";
 import ResizableContainer from '../assets/components/ResizableContainer';
 import warningSign from "../assets/img/warning1.png"
-import normalize  from '../assets/utilities/normalize';
+import  {default as scale} from '../assets/utilities/normalize';
 import emailjs from '@emailjs/browser';
 import 'react-native-get-random-values'
 import CryptoJS from 'react-native-crypto-js';
@@ -15,8 +15,12 @@ import {REACT_APP_PUBLIC_KEY,REACT_APP_SERVICE_ID,
 import { useRef, useState, useContext } from 'react';
 import { fetchCurrentTime } from '../assets/utilities/CurrentTime';
 import AutoInputFocus from '../assets/components/AutoInputFocus';
-import {firebase} from "../firebase-config"
+import InputCell from '../assets/components/customInput/InputCell';
+import CustomInputGroup from '../assets/components/customInput/CustomInputGroup';
+// import {firebase} from "../firebase-config"
 import Parse from "../parse-config";
+
+// import { scale } from 'react-native-size-matters';
 
 
 
@@ -30,7 +34,7 @@ const EmailPage = ({navigation}) => {
     
 
     const inputRef = useRef(); // reference to the input DOM obj 
-    const scale = normalize;
+    
     
     const  getRandomNumberInRange= (min, max)=> {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -201,8 +205,12 @@ const EmailPage = ({navigation}) => {
     return (
         <ResizableContainer width={width}>
             <AutoInputFocus pageName={"EmailPage"} inputRef = {inputRef}  />
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
-            keyboardVerticalOffset={ Platform.OS === 'ios'? scale(25) : scale(0)} 
+
+            <KeyboardAvoidingView behavior={
+                Platform.OS === 'ios' ? 'padding' : 'height'}
+                 
+            keyboardVerticalOffset={ 
+                Platform.OS === 'ios'? scale(25) : scale(0)} 
             style={{height:"100%"}}>
                 
             <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>
@@ -213,15 +221,21 @@ const EmailPage = ({navigation}) => {
                         {"Enter your email"}
                         </Text>
                     
+                    
+                    
+                    
+                    
+                    
                     <TouchableOpacity onPress={(e)=> e.stopPropagation} style={{width:"100%"}}>
 
-                        <View style={[ {paddingTop: scale(7), paddingLeft:scale(33)}]}>
+                        <View style={[ {paddingTop: scale(7), marginLeft:scale(33)}]}>
                             <TextInput ref={inputRef} style={[{ fontFamily:
-                            "Inter-Light", fontSize:scale(19), height: scale(50)}] }
+                            "Inter-Light", fontSize:scale(20), height: scale(50)}] }
                                     placeholder={'Email Address'}
                                     keyboardType="email-address"
                                     value={email}
                                     onChangeText={(value)=> setEmailState(value)}
+                                    textContentType='emailAddress'
                                 />
                         </View>
                     </TouchableOpacity>

@@ -16,6 +16,12 @@ const AutoInputFocus = (prop) => {
         // after the view is visible
         setTimeout(() => {
             prop.inputRef.current.focus()
+
+            // for customInput
+            if(prop.customInputSetState != undefined){
+                prop.customInputSetState(true)
+            }
+            
             }, 500);
 
             // set page visited
