@@ -16,6 +16,8 @@ const normalize = (size) => {
     var {width, height} = Dimensions.get("window");
     const  PHONE_SCREEN_WIDTH = 600; 
 
+    // if the screen width is bigger than
+    // phone screen size
     if(width >  PHONE_SCREEN_WIDTH){
       //re-adjust the width and height 
       // for tablet since its screen
@@ -42,7 +44,14 @@ const normalize = (size) => {
         size *= 0.90; // Tested
       }
       else{
-          size *= 1.0; // tested
+          // TOUCHED (07/12/23)
+          if(width < 400){
+            size *= 0.9; 
+          }
+          else{
+            size *= 1.0; 
+          }
+          /////////////////////
       }
     }
 
@@ -59,10 +68,16 @@ const normalize = (size) => {
         else if (height < 667) {
           size *= 0.75; //test
         } else if (height >= 667 && height <= 735) {
-          size *= 0.85; // Tested
+          size *= 0.76; // TOUCHED (07/12/23)
         }
         else{
-            size *= 1.0; // tested
+          // TOUCHED (07/12/23)
+          if(width < 400){
+            size *= 0.9; 
+          }
+          else{
+            size *= 1.0; 
+          }
         }
 
         
@@ -84,7 +99,17 @@ const normalize = (size) => {
           size *= 0.85;
         }
         else{
-          size *= 1.0; // iphone 12 pro max
+          
+          // TOUCHED (07/12/23)
+
+          // we use width to distinguish
+          if(width < 400){
+            size *= 0.9; 
+          }
+          else{
+            size *= 1.0; // iphone 12 pro max
+          }
+          
         }
 
         
