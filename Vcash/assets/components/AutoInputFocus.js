@@ -16,9 +16,19 @@ const AutoInputFocus = (prop) => {
         // after the view is visible
         setTimeout(() => {
             prop.inputRef.current.focus()
+
+            // if there is a state var for tracking
+            // keyboard on and off state
+            if(prop.setKeyboardState != undefined){
+
+                // update that state var to true
+                // since we just turn on the 
+                // keyboard
+                prop.setKeyboardState(true)
+            }
             }, 500);
 
-            // set page visited
+            // set page as visited
             visitPageFunc(prop.pageName)
     }
     
