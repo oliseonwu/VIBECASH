@@ -18,7 +18,6 @@ import AutoInputFocus from '../assets/components/AutoInputFocus';
 import CD_Timer from '../assets/components/countDownTimer';
 import { fetchCurrentTime } from '../assets/utilities/CurrentTime';
 import CustomInputGroup from '../assets/components/customInput/CustomInputGroup';
-import * as Haptics from 'expo-haptics';
 
 
 const VerifyEmailPage = ({navigation}) => {
@@ -28,8 +27,9 @@ const VerifyEmailPage = ({navigation}) => {
     const inputRef = useRef(); // reference to the input DOM obj 
     const {height, width} = useWindowDimensions();
     const [noNetworkSign, setNetworkSignStatus] = useState(false)
-    const [isCustomInputActive, setCustomInputActiveState] = useState(false);
-    const [customInputAnimation, setCustomInputAnimation] = useState(null);
+    const [isInputAnimationActive, setInputAnimationState] = useState(false);
+    const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+    const [isCodeRejected, setIsCodeRejected] = useState(false);
     
     const[inputCode, setInputCode] = useState("")
     
@@ -42,7 +42,7 @@ const VerifyEmailPage = ({navigation}) => {
         if(currentTimeStamp != null){
             currentTimeStamp = new Date(currentTimeStamp);
 
-            hideKeyboardAndDeactivateCustomInput();
+            hideKeyboard();
 
             // Dycrypt saved data
             AsyncStorage.getItem(ENCRYPTION_KEY)
@@ -65,20 +65,24 @@ const VerifyEmailPage = ({navigation}) => {
                     // Use the decrypted data
                     if(savedCode == inputCode){
                         console.log("Email validated");
+                        setIsCodeRejected(false);
                     }
-                    else{
+                    else{ // invalid code
                     console.log("Invalid Code!");
-                    inputDeniedAnimation();
-                    addWarningVibration()
+                    setIsCodeRejected(true);
+
+                    
                     }
                 }
                 else{ // code expired
                     console.log("code has expired!")
-                    inputDeniedAnimation();
-                    addWarningVibration
+                    setIsCodeRejected(true);
+                    // inputDeniedAnimation();
+                    // addErrorVibration();
                 }
 
-            
+                // // reset the input code
+                // setInputCode("");
             })
             .catch((error) => {
                 console.log('DECRYPTION FAILED ...', error);
@@ -90,29 +94,42 @@ const VerifyEmailPage = ({navigation}) => {
         
     }
 
-    const inputDeniedAnimation = ()=>{
-
-        // make my custom input shake
-        setCustomInputAnimation("shake");
-
-        
-        setTimeout(()=>{
-            // after 500 milisec reset the 
-            // animation from "shake" to 
-            // null
-            setCustomInputAnimation(null)        
-        }, 500)
-        
-        // reset the input code
-        setInputCode("")  
+    const clearInput = ()=>{
+        setInputCode("");
+        setIsCodeRejected(false);
     }
 
-    const addWarningVibration = ()=>{
-        Haptics.notificationAsync(
-            Haptics.NotificationFeedbackType.Error
-          )
-    }
+    // const inputDeniedAnimation = ()=>{
+    // /////////////////////////////////////////
+    // // BAD: Because if you send a signal to the custom 
+    // // input using a state, you still have to manually 
+    // // turn of the state var over here from the child 
+    // // custom input component (child componnent)
+    // // its just messy. its better to turn on and off
+    // // state on the parent component and the child 
+    // // state should react to that change.
 
+    //     // // sends a turnOn signal to the
+    //     // // custom input to make my 
+    //     // // custom input shake
+    //     // setInputAnimationState(true);
+    // //////////////////////////////////////////
+        
+    //     setTimeout(()=>{
+    //         // after 500 milisec send a 
+    //         // turnOff signal to my custom 
+    //         // input. (This doesn't turn
+    //         // of the animation, animation
+    //         // already has a duration.
+    //         // This alows us to be able
+    //         // to play the animation when
+    //         // needed again).
+    //         setInputAnimationState(false)        
+    //     }, 500)
+        
+    // }
+
+  
         
     const handelInput = (code) =>{
         
@@ -135,23 +152,12 @@ const VerifyEmailPage = ({navigation}) => {
         setInputCode(code);
     }
 
-    // const displayResendButton=()=>{
-    //     if(displayResendCode){
-            
-    //         return <TouchableOpacity style={{ 
-    //             marginLeft:normalize(20), justifyContent:"center", 
-    //             alignContent:"center", paddingTop:"0.3%" }}>
-    //                 <Text style={{fontFamily: "Inter-Bold", 
-    //                 fontSize:normalize(16)}} >
-    //                     {"Resend Code?"}</Text></TouchableOpacity>
-    //     }
-        
-    // }
+
 
     
     const displayNextBtn = () =>{
         // if there is an entry
-        if(inputCode != ""){ 
+        if(inputCode.length === 6){ 
           return  <TouchableOpacity  onPress={()=>VerifyCode() }
                             style={[{ width:"43.7%", height: scale(48), 
                                 borderRadius: scale(19.43), justifyContent: 'center', alignItems: 'center',
@@ -177,13 +183,12 @@ const VerifyEmailPage = ({navigation}) => {
         }
     }
 
-    const hideKeyboardAndDeactivateCustomInput = ()=>{
+    const hideKeyboard = ()=>{
         // hide the keyboard
         Keyboard.dismiss();
 
-        // send a signal to the custom 
-        // input component to deactive
-        setCustomInputActiveState(false)
+        // update state var
+        setIsKeyboardActive(false)
     }
 
     const displayNetworkSign = ()=>{
@@ -203,13 +208,15 @@ const VerifyEmailPage = ({navigation}) => {
     return (
         <ResizableContainer width={width}>
 
-            {/* AutoInputFocus holds a set state "customInputSetState" that controls 
-                set the active state for the custom input field*/}
-            <AutoInputFocus pageName={"VerifyEmailPG"} inputRef = {inputRef} customInputSetState={setCustomInputActiveState}  />
+            {/* AutoInputFocus holds a setKeyboardState which is 
+                used to keep track of when the keyboard is on
+                or off. it can bbe set to null we we don't want
+                to track the keyboard using state var*/}
+            <AutoInputFocus pageName={"VerifyEmailPG"} inputRef = {inputRef} setKeyboardState={setIsKeyboardActive}  />
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
             keyboardVerticalOffset={ Platform.OS === 'ios'? scale(25) : scale(0)} 
             style={{height:"100%"}}>
-            <TouchableWithoutFeedback onPress={()=>{hideKeyboardAndDeactivateCustomInput()}}>
+            <TouchableWithoutFeedback onPress={()=>{hideKeyboard()}}>
 
                 <View style={[s`bg-white relative`, {height:'100%'}]}>
                     <Text style={[{fontFamily:"Inter-Medium", paddingLeft:scale(22), 
@@ -220,23 +227,26 @@ const VerifyEmailPage = ({navigation}) => {
                     <Text style={[{fontFamily:"Inter-Light", paddingLeft:scale(22), 
                                 fontSize:scale(18), paddingTop: scale(20),
                                 paddingRight:scale(33)}]}>
-                        <Text style={{fontFamily:"Inter-Light", color:"#8E969D"}}>{"Enter the six digit code we sent to your email"} </Text> 
+                        <Text style={{fontFamily:"Inter-Light", color:"#8E969D"}}>
+                            {"Enter the six digit code we sent to your email"} </Text> 
                         <Text style={{fontFamily:"Inter-Regular", color:"#989898"}}>{email}</Text>
                     </Text>
 
-                    <TouchableOpacity activeOpacity={1} onPress={()=>setCustomInputActiveState(true)}>
-                        <View  style={styles.customInputContainer}>
+                    <View  style={styles.customInputContainer}>
+                        <TouchableOpacity activeOpacity={1} onPress={()=>setIsKeyboardActive(true)}>
+                            
 
-                            <CustomInputGroup value={""+inputCode}  setActive={isCustomInputActive}
-                             inputRef = {inputRef} animation={customInputAnimation}/>
-                        </View>
-                    </TouchableOpacity>
+                                <CustomInputGroup value={""+inputCode} keyboardState={isKeyboardActive}
+                                inputRef= {inputRef}  animation={isCodeRejected} clearInput={clearInput}/>
+                            
+                        </TouchableOpacity>
+                    </View>
                     
                     
                     <TouchableOpacity onPress={(e)=> e.stopPropagation} 
                     style={{width:"100%",height: scale(1), opacity:0, pointerEvents:"none"}}>
 
-                        <View style={[ {paddingLeft:scale(33),}]} >
+                        <View style={[ {paddingLeft:scale(33)}]} >
                             <TextInput ref={inputRef} style={[{ fontFamily:
                             "Inter-Light", fontSize:scale(25), height: "100%"}] }
                                     placeholder={'Enter Confirmation Code '}
@@ -299,7 +309,8 @@ const VerifyEmailPage = ({navigation}) => {
     customInputContainer: {
       marginLeft: normalize(22),
       marginRight: normalize(22),
-      paddingTop: normalize(65),
+      paddingTop: normalize(58),
+      paddingBottom: normalize(55),
     },
     
   });

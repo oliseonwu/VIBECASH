@@ -2,14 +2,13 @@ import { View, Text, StyleSheet, Keyboard } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import InputCellMemo from './InputCell'
 import {default as scale} from '../../utilities/normalize';
-
+import * as Haptics from 'expo-haptics';
 import * as Animatable from 'react-native-animatable';
 const CustomInputGroup = (props) => {
   const [numbers, setNumbers] = useState(["","","","","",""]);
   const [isactiveJ, setIsActiveJ] = useState([false,false,false,
                                               false,false,false]);
   
-
   // holds the currennt active square index
   const activeSquareIndex = useRef(null);
   
@@ -19,16 +18,16 @@ const CustomInputGroup = (props) => {
     updateInputValue();
    }, [props.value])
 
-   // run only when the setActive change
+   // run only when the Keyboard State change
    useEffect(()=>{
-    // if parent says this class should be active
-    if(props.setActive){
+    // if parent says the keyboard is Active
+    if(props.keyboardState){
       activateInput();
     }
     else{
       deactivateInput();
     }
-   }, [props.setActive])
+   }, [props.keyboardState])
 
   // return the next index in numbers that has ""                                                      
   const getIndexOfNextEntrySpace = ()=>{
@@ -57,7 +56,7 @@ const CustomInputGroup = (props) => {
     isactiveJCopy = [...isactiveJ];
     isactiveJCopy[nextEmptySlotIndex] = true;
 
-    // focus on the hidden input
+    // focus on the hidden input.
     // (displays the keyboard)
     props.inputRef.current.focus()
     setIsActiveJ(isactiveJCopy)
@@ -91,16 +90,15 @@ const CustomInputGroup = (props) => {
 
     setNumbers(numbersCopy);
 
-    // if parent wants current component 
-    // active
-    // if(props.setActive){
+    // if keyboard is still on 
+    // if(props.isKeyboardActive){
     //   updateHighlightedBox(stopIndex);
     // }
 
     // happy accident. This will color the 
     // first box when the we reset the text
-    // in the input to "" even if we set this 
-    // component not active
+    // in the input to "" even if the keyboard
+    // is off.
     updateHighlightedBox(stopIndex);
   }
 
@@ -122,7 +120,15 @@ const CustomInputGroup = (props) => {
     }
     
   }
-  
+  const onAnimationBegin = ()=>{
+    Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Error
+    )
+  }
+
+  const onAnimationEnd = ()=>{
+    props.clearInput();
+  }
 
   
 
@@ -131,9 +137,10 @@ const CustomInputGroup = (props) => {
 
   
   return ( 
-    // props.action can either be null or "shake" which 
+    // props.animation can either be true or false which 
     // makes the custom input shake left and right 
-    <Animatable.View animation={props.animation} duration={200} >
+    <Animatable.View animation={props.animation? "shake" :null} duration={200}
+     onAnimationEnd={onAnimationEnd} onAnimationBegin={onAnimationBegin}>
       <View style={styles.container}>
         <InputCellMemo isActive={isactiveJ[0]} number={numbers[0]}/>
         <InputCellMemo isActive={isactiveJ[1]} number={numbers[1]}/>
