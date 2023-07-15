@@ -18,6 +18,7 @@ import AutoInputFocus from '../assets/components/AutoInputFocus';
 import CD_Timer from '../assets/components/countDownTimer';
 import { fetchCurrentTime } from '../assets/utilities/CurrentTime';
 import CustomInputGroup from '../assets/components/customInput/CustomInputGroup';
+import { color } from 'react-native-reanimated';
 
 
 const VerifyEmailPage = ({navigation}) => {
@@ -27,7 +28,6 @@ const VerifyEmailPage = ({navigation}) => {
     const inputRef = useRef(); // reference to the input DOM obj 
     const {height, width} = useWindowDimensions();
     const [noNetworkSign, setNetworkSignStatus] = useState(false)
-    const [isInputAnimationActive, setInputAnimationState] = useState(false);
     const [isKeyboardActive, setIsKeyboardActive] = useState(false);
     const [isCodeRejected, setIsCodeRejected] = useState(false);
     
@@ -254,46 +254,54 @@ const VerifyEmailPage = ({navigation}) => {
                                     onChangeText={(value)=> handelInput(value)}
                                     textContentType="oneTimeCode"
                                     value={inputCode}
+                                    onSubmitEditing={hideKeyboard}
                                     maxLength={6}
                                 />
                         </View>
                     </TouchableOpacity>
 
                     
-                    <View style={[s`flex-row`, {alignContent:"center",paddingTop:scale(10),
-                paddingLeft:scale(33) }]}>
+                    <View style={{paddingTop:scale(10), paddingLeft:scale(22) }}>
                         
                         <CD_Timer   count={120} />
-
-                        <TouchableOpacity style={{ 
-                            marginLeft:normalize(20), justifyContent:"center", 
-                            alignContent:"center", paddingTop:"0.3%" }}>
-                                
-                                <Text style={{fontFamily: "Inter-Bold", 
-                                fontSize:normalize(16), textDecorationLine:"underline"}} >
-                                    {"Resend Code"}</Text>
-                        </TouchableOpacity>
                         
                     </View>
 
                     {displayNetworkSign()}
                     
+                    
+                    
+                    <View style={[s`absolute bottom-10`, {width:"100%"}]}>
+
+                        <View style={[s`flex-row`, {alignContent:"center", justifyContent: "center",
+                        paddingBottom: normalize(40)}]}>
+                            
+                            <Text style={styles.didntRecieveCode}>{"Didn’t receive code?"}</Text>
+
+                            <TouchableOpacity style={{ marginLeft:normalize(12) }} onPress={(e)=>e.stopPropagation}>
+
+                                    <Text style={styles.resendCodeStyle} >
+                                        {"Resend"}</Text>
+                            </TouchableOpacity>
+                            
+                        </View>
 
                     
-                    <View style={[s`flex-row absolute bottom-10`, {width:"100%", justifyContent:"space-evenly"}]}>
+                        <View style={[s`flex-row`, {width:"100%", justifyContent:"space-evenly"}]}>
 
-                        <TouchableOpacity onPress={()=> navigation.goBack()} 
-                            style= {[s`bg-black`, { width:"43.7%", height: scale(48), 
-                                borderRadius: scale(19.43), justifyContent: 'center', alignItems: 'center',
-                                }]} >
+                            <TouchableOpacity onPress={()=> navigation.goBack()} 
+                                style= {[s`bg-black`, { width:"43.7%", height: scale(48), 
+                                    borderRadius: scale(19.43), justifyContent: 'center', alignItems: 'center',
+                                    }]} >
 
-                                <Text style={[s`text-white text-center`,
-                                    {fontFamily: "Inter-Bold", fontSize: scale(17.93)}]}>
-                                        {"Back"}
-                                </Text>
-                        </TouchableOpacity>
+                                    <Text style={[s`text-white text-center`,
+                                        {fontFamily: "Inter-Bold", fontSize: scale(17.93)}]}>
+                                            {"Back"}
+                                    </Text>
+                            </TouchableOpacity>
 
-                        {displayNextBtn()}
+                            {displayNextBtn()}
+                        </View>
                     </View>
                     
                 </View>
@@ -309,9 +317,22 @@ const VerifyEmailPage = ({navigation}) => {
     customInputContainer: {
       marginLeft: normalize(22),
       marginRight: normalize(22),
-      paddingTop: normalize(58),
-      paddingBottom: normalize(55),
+      paddingTop: normalize(55),
+      paddingBottom: normalize(52),
     },
+    didntRecieveCode:{
+        fontFamily: "Inter-Light",
+        fontSize: normalize(18),
+        
+        color: "#A5A5A5",
+        // textAlign:"center"
+    },
+    resendCodeStyle: {
+        fontFamily: "Inter-Bold", 
+        fontSize:normalize(18),
+        fontFamily:"Inter-Medium",
+        color:"#6AC78E",
+    }
     
   });
 export default VerifyEmailPage;
