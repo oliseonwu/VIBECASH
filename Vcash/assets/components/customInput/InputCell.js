@@ -7,12 +7,29 @@ import { color } from 'react-native-reanimated';
 
 const InputCell = (props) => {
 
+  const displayInputCell=()=>{
+    //redMode colors the block red
+    
+    if(props.redMode === false ||
+       props.redMode === undefined){
+
+        return <View style={[styles.container,
+          props.isActive? 
+            styles.colorActive : styles.colorInActive]}>
+        <Text style={[styles.textStyle]}>{props.number}</Text>
+      </View>
+    }
+    else{
+      
+        return <View style={[styles.container,
+            styles.redMode ]}>
+        <Text style={[styles.textStyle]}>{props.number}</Text>
+      </View>
+    }
+  }
+
   return (
-    <View style={[styles.container,
-       props.isActive? 
-          styles.colorActive : styles.colorInActive]}>
-      <Text style={[styles.textStyle]}>{props.number}</Text>
-    </View>
+    displayInputCell()
   )
 }
 
@@ -44,6 +61,10 @@ const styles = StyleSheet.create({
     fontSize: scale(24),
     color: "#908C8C"
     
+  },
+  redMode: {
+    backgroundColor: "#F9EEEE",
+    borderColor: "#DAA2A2",
   }
   
 });
@@ -53,10 +74,11 @@ const styles = StyleSheet.create({
 //prop did't change. We do this by using memo
 const InputCellMemo = memo(InputCell,
   (prevProps,nextProps) =>{
-      // if previous props are thesam as 
+      // if previous props are thesame as 
       // next prop, don't re-render
       if(prevProps.isActive === nextProps.isActive
-        && prevProps.number === nextProps.number){
+        && prevProps.number === nextProps.number
+        && prevProps.redMode === nextProps.redMode){
           return true;
       }
       return false;
