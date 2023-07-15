@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Keyboard } from 'react-native'
+import { View, Text, StyleSheet, Keyboard, Platform } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import InputCellMemo from './InputCell'
 import {default as scale} from '../../utilities/normalize';
@@ -8,6 +8,8 @@ const CustomInputGroup = (props) => {
   const [numbers, setNumbers] = useState(["","","","","",""]);
   const [isactiveJ, setIsActiveJ] = useState([false,false,false,
                                               false,false,false]);
+  
+  const [isRedModeOn, setIsRedModeOn] = useState(false);
   
   // holds the currennt active square index
   const activeSquareIndex = useRef(null);
@@ -59,8 +61,13 @@ const CustomInputGroup = (props) => {
     // focus on the hidden input.
     // (displays the keyboard)
     props.inputRef.current.focus()
+    
+    // set active state for all squares
     setIsActiveJ(isactiveJCopy)
 
+    if(isRedModeOn){ 
+      setIsRedModeOn((isRedModeOn)=>!isRedModeOn);
+    } 
   }
 
   // deactivate the custom input
@@ -90,16 +97,18 @@ const CustomInputGroup = (props) => {
 
     setNumbers(numbersCopy);
 
+    // happy accident. This will color the 
+    // first box when the we reset the text
+    // in the input to "" even if the keyboard
+    // is off. {ADDRESSED ALREADY!}
+    
+    updateHighlightedBox(stopIndex);
+    
+
     // if keyboard is still on 
     // if(props.isKeyboardActive){
     //   updateHighlightedBox(stopIndex);
     // }
-
-    // happy accident. This will color the 
-    // first box when the we reset the text
-    // in the input to "" even if the keyboard
-    // is off.
-    updateHighlightedBox(stopIndex);
   }
 
   const updateHighlightedBox =(nextIndex)=>{
@@ -121,13 +130,22 @@ const CustomInputGroup = (props) => {
     
   }
   const onAnimationBegin = ()=>{
-    Haptics.notificationAsync(
-      Haptics.NotificationFeedbackType.Error
-    )
+
+    if(Platform.OS !== "web"){
+      Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Error
+      )
+    }
   }
 
   const onAnimationEnd = ()=>{
+
     props.clearInput();
+
+    // after the wrong input 
+    // animation, set the
+    // first block to red 
+    setIsRedModeOn(true);
   }
 
   
@@ -142,7 +160,7 @@ const CustomInputGroup = (props) => {
     <Animatable.View animation={props.animation? "shake" :null} duration={200}
      onAnimationEnd={onAnimationEnd} onAnimationBegin={onAnimationBegin}>
       <View style={styles.container}>
-        <InputCellMemo isActive={isactiveJ[0]} number={numbers[0]}/>
+        <InputCellMemo isActive={isactiveJ[0]} redMode={isRedModeOn} number={numbers[0]}/>
         <InputCellMemo isActive={isactiveJ[1]} number={numbers[1]}/>
         <InputCellMemo isActive={isactiveJ[2]} number={numbers[2]}/>
 

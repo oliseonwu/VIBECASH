@@ -31,13 +31,6 @@ const CD_Timer = (props)=>{
 
         return (()=> {clearTimeout(timer)})
     }
-    // else{
-    //     // // when the count goes to zero
-    //     // // show the resend code bbutton
-    //     // if(countState <=0){
-    //     //     props.displayResendCode(true);
-    //     // }
-    // }
      }, [countState])
     
         
@@ -99,6 +92,18 @@ const CD_Timer = (props)=>{
                 
                 backgroundTimestamp.current = null;
                 foregroundTimestamp.current = null;
+
+                if (minimizedDuration === 0){
+                    // why, because when the app state is in background mode,
+                    // our useState that updates our timer stops, so when 
+                    // the app is back on active mode we need to start the 
+                    // useState again by causung a rerender using the 
+                    // setCountState(). If minimizedDuration is zero, there
+                    // wouldn't be a change in the setCountState() which
+                    // doesn't cause a rerender that we need that resume the 
+                    // count down
+                    minimizedDuration++;
+                } 
                 console.log('App Minimized for %s seconds\n', minimizedDuration);
 
                 // update count down based on how long we minimized the app
@@ -137,15 +142,18 @@ const CD_Timer = (props)=>{
        if(countState > 0){
         
         return <Text >
-        <Text style={{fontFamily:"Inter-Light", fontSize: normalize(17)}}>{"code expires in "}</Text>
+        <Text style={{fontFamily:"Inter-Light", fontSize: normalize(18), color:"#A5A5A5"}}>{"code expires in: "}</Text>
         
-        <Text style={{color:"#FF0000", fontFamily: "Inter-ExtraLight", fontSize:normalize(18)}}>
+        <Text style={{color:"#6EC592", fontFamily: "Inter-ExtraLight", fontSize:normalize(18)}}>
         {currTimeObj.m+":"+ (currTimeObj.s< 10? "0"+currTimeObj.s: currTimeObj.s)}</Text>
        </Text>
        }
        else{
-        return<Text style={{color:"#FF0000", fontFamily:"Inter-Light",
-         fontSize: normalize(17)}}>{"Code is expired."}</Text>
+        return<Text >
+        <Text style={{fontFamily:"Inter-Light", fontSize: normalize(18), color:"#A5A5A5"}}>{"code expires in: "}</Text>
+        
+        <Text style={{color:"#FF0000", fontFamily: "Inter-ExtraLight", fontSize:normalize(18)}}>0:00</Text>
+       </Text>
        } 
     }
 
