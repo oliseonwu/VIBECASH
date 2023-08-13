@@ -6,17 +6,15 @@ import { useNavigation } from '@react-navigation/native';
 import ladyOnAChair from "../assets/img/LadyOnAChair.png"
 import normalize from '../assets/utilities/normalize';
 import ResizableContainer from '../assets/components/ResizableContainer';
-// import {TimeOutCalc, calculateDuration} from '../assets/utilities/TimeOutCalc';
 
 
-import Parse from "../parse-config"
+
 const GetStarted = ()=> {
   const navigation = useNavigation();
 
   const {height, width} = useWindowDimensions();
-     
-     // it triggers a rerender when the height and width changes
-    
+  // it triggers a rerender when the height and width changes
+  
      // Testing
      const displayScreenUnits = () =>{
       if (width > 600){
