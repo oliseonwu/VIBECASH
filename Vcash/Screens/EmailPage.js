@@ -7,7 +7,7 @@ import ResizableContainer from '../assets/components/ResizableContainer';
 import warningSign from "../assets/img/warning1.png"
 import  {default as scale} from '../assets/utilities/normalize';
 import emailjs from '@emailjs/browser';
-import 'react-native-get-random-values'
+
 import CryptoJS from 'react-native-crypto-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {REACT_APP_PUBLIC_KEY,REACT_APP_SERVICE_ID,
@@ -17,6 +17,8 @@ import { fetchCurrentTime } from '../assets/utilities/CurrentTime';
 import AutoInputFocus from '../assets/components/AutoInputFocus';
 import InputCell from '../assets/components/customInput/InputCell';
 import CustomInputGroup from '../assets/components/customInput/CustomInputGroup';
+import {createNewUser,doesEmailExistInDB, 
+    logOutCurrentUser, loginUser, sendEmail} from "../assets/utilities/parseFunctions" 
 // import {firebase} from "../firebase-config"
 import Parse from "../parse-config";
 
@@ -48,88 +50,51 @@ const EmailPage = ({navigation}) => {
     
     
     const onClickNextBtn = async () => {
+        // remove later
+        await logOutCurrentUser();
+
+        let isEmailSent = null;
         Keyboard.dismiss()
 
-        if(noNetworkSign){ // if ON
-            setNetworkSignStatus(false); // turn OFF
-        }
+        // if(noNetworkSign){ // if ON
+        //     setNetworkSignStatus(false); // turn OFF
+        // }
 
-        // get random number
-        const randNum1 = formatNumber(getRandomNumberInRange(0, 999));
-        const randNum2 = formatNumber(getRandomNumberInRange(0, 999));
+        isEmailSent = await sendEmail(email);
 
-       // create the code
-       const code =randNum1+"-"+randNum2;
+        if(isEmailSent === true){
 
-       // fetch current time
-       const currentTimeStamp = await fetchCurrentTime();
+            if(Platform.OS != "web"){
 
-       // encrypt code
-       await encryptAndSaveCode(code+"~"+currentTimeStamp);
-        
-       // if we can't get the date from the internet
-       // don't allow this process to go foward
-       if(currentTimeStamp != null){
-
-            await sendEmail(code)
-                .then(async()=>{
-
-                // record that we sent to this email at a certain time
-                //await recordEmailAndTimeStampInDB(email,new Date(currentTimeStamp))
-
-                // if keyboard is open wait for the keyboard
-                // to go off the screen before navigating
-                if(Platform.OS != "web"){
-                    if(Keyboard.isVisible()){
-                        setTimeout(()=>navigation.navigate(
-                            'VerifyEmailPG',{email}),200)
-                    }
-                    else{
-                        navigation.navigate(
-                            'VerifyEmailPG',{email})
-                    }
+                if(Keyboard.isVisible()){
+                    setTimeout(()=>navigation.navigate(
+                        'VerifyEmailPG',{email}),200)
                 }
                 else{
                     navigation.navigate(
                         'VerifyEmailPG',{email})
                 }
-            }).catch(()=>{
-                setNetworkSignStatus(true)
-            })
-       }
-       else{
-        setNetworkSignStatus(true)
-       }
+            }
+            else{
+                navigation.navigate(
+                    'VerifyEmailPG',{email})
+            }
+        }
+        else{
+            // maybe the email account is on hold 
+            // or on time out 
+        }
         
     }
-
-    const sendEmail = async(code) =>{
-        
-
-//=========== Open when productionn ready =======================
-       // send code to email
-    //    await emailjs.send(REACT_APP_SERVICE_ID,REACT_APP_TEMPLATE_ID
-    //     ,{message: code, EMAIL: email}, REACT_APP_PUBLIC_KEY )
-
-    //     .then(async function(response) {
-    //         console.log("Email sent!");
-
-    //      }, function(error) {
-    //         console.log('FAILED...Error sending email', error);
-    //         throw TypeError("Email not sent")
-    //      });
     
+    const encryptItem = (item, key)=>{
+        const encryptedItem = CryptoJS.AES.encrypt(item, key).toString();
 
-//============= Remember to remove =============================
-        console.log('Your VerificationCode is %s', code);        
-//==============================================================
-        }
-
+        return encryptedItem;
+    }
 
           
-    const encryptAndSaveCode = async (code)=>{
-
-        const encryptedCode = CryptoJS.AES.encrypt(code, ENCRYPTION_KEY).toString();
+    const saveToAsyncStorage = async (encryptedCode)=>{
        
       await AsyncStorage.setItem(ENCRYPTION_KEY, encryptedCode)
        .then(() => {
@@ -221,20 +186,16 @@ const EmailPage = ({navigation}) => {
                         {"Enter your email"}
                         </Text>
                     
-                    
-                    
-                    
-                    
-                    
                     <TouchableOpacity onPress={(e)=> e.stopPropagation} style={{width:"100%"}}>
 
                         <View style={[ {paddingTop: scale(7), marginLeft:scale(33)}]}>
                             <TextInput ref={inputRef} style={[{ fontFamily:
                             "Inter-Light", fontSize:scale(20), height: scale(50)}] }
                                     placeholder={'Email Address'}
+                                    autoCapitalize="none"
                                     keyboardType="email-address"
                                     value={email}
-                                    onChangeText={(value)=> setEmailState(value)}
+                                    onChangeText={(value)=> setEmailState(value.replace(/\s/g, ''))}
                                     textContentType='emailAddress'
                                 />
                         </View>

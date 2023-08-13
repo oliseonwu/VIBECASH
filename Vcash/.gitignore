@@ -9,7 +9,7 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
-
+CloudCode/
 # macOS
 .DS_Store
 
