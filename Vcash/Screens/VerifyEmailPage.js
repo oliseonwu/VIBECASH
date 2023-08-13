@@ -7,7 +7,7 @@ import { Text, View, TextInput, useWindowDimensions,
 import { s } from "react-native-wind";
 import ResizableContainer from '../assets/components/ResizableContainer';
 import normalize  from '../assets/utilities/normalize';
-import 'react-native-get-random-values'
+
 import warningSign from "../assets/img/warning1.png"
 import CryptoJS from 'react-native-crypto-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,8 +19,8 @@ import CD_Timer from '../assets/components/countDownTimer';
 import { fetchCurrentTime } from '../assets/utilities/CurrentTime';
 import CustomInputGroup from '../assets/components/customInput/CustomInputGroup';
 import { color } from 'react-native-reanimated';
-
-
+import {createNewUser,doesEmailExistInDB, 
+    logOutCurrentUser, loginUsingSessionToken, verifyCode} from "../assets/utilities/parseFunctions" 
 const VerifyEmailPage = ({navigation}) => {
     // email pattern recorgnistion
     const route = useRoute()
@@ -35,130 +35,134 @@ const VerifyEmailPage = ({navigation}) => {
     
     const scale = normalize;
     
-    const VerifyCode = async() =>{
+    // verify the code
+    const onClickNextBTN = async() =>{
         setNetworkSignStatus(false);
-        let currentTimeStamp = await fetchCurrentTime();
-        console.log(currentTimeStamp)
-        if(currentTimeStamp != null){
-            currentTimeStamp = new Date(currentTimeStamp);
+        hideKeyboard();
 
-            hideKeyboard();
+        const verification = await verifyCode(email,inputCode,"email");
 
-            // Dycrypt saved data
-            AsyncStorage.getItem(ENCRYPTION_KEY)
-            .then((encryptedData) => {
-                
-                const decryptedData = CryptoJS.AES.decrypt(
-                    encryptedData, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
-                
-                // get the saved code and timestamp 
-                let [savedCode, storedTimestamp] = decryptedData.split('~');
-                storedTimestamp = new Date(storedTimestamp)
-
-                // get difference in times
-                const timeDifference = currentTimeStamp.getTime() - storedTimestamp.getTime();
-
-                // if greater than 0 and <= 2mins
-                if (timeDifference > 0 && timeDifference <= 2 * 60 * 1000) {
-                    // code has not expired
-                    
-                    // Use the decrypted data
-                    if(savedCode == inputCode){
-                        console.log("Email validated");
-                        setIsCodeRejected(false);
-                    }
-                    else{ // invalid code
-                    console.log("Invalid Code!");
+            switch(verification.staus){
+                case 1: 
+                    loginUsingSessionToken(verification.session);
+                    setIsCodeRejected(false);
+                    break;
+                case -1: // invalid Code
+                    // console.log("Invalid Code!");
                     setIsCodeRejected(true);
-
-                    
-                    }
-                }
-                else{ // code expired
-                    console.log("code has expired!")
+                    break;
+                case 0: // expired Code
+                    // console.log("Expired Code!");
                     setIsCodeRejected(true);
-                    // inputDeniedAnimation();
-                    // addErrorVibration();
-                }
+                    break;
+                default: 
+                    console.log("Error occured in onClickNextBTN().\n    msg=" + verification.staus);
 
-                // // reset the input code
-                // setInputCode("");
-            })
-            .catch((error) => {
-                console.log('DECRYPTION FAILED ...', error);
-            });
+            }
+          
+    }
+
+    const login = async ()=>{
+        // Remove in Production
+        await logOutCurrentUser()
+        /////////////////////////
+
+        const emailExist = await doesEmailExistInDB(email);
+
+        // New user
+        if(!emailExist){
+            // Creates and logs in the new user
+            await createNewUser(email);
         }
         else{
-            
+           await loginUser(email);
         }
-        
+    }
+
+    // const verifyCode = async()=>{
+    //     // 1 means code is valid
+    //     // -1 means code is invalid
+    //     // 0 means code has expired 
+
+    //     // get current time
+    //     let currentTimeStamp = await fetchCurrentTime();
+    //     let decryptedData = null;
+    //     let savedCode = null;
+    //     let storedTimestamp = null;
+    //     let result = -1; // result is invalid by default
+
+    //     if(currentTimeStamp != null){
+    //         // convert date to usable format
+    //         currentTimeStamp = new Date(currentTimeStamp);
+
+    //         // save decrypted data
+    //         decryptedData = await dycryptData(ENCRYPTION_KEY);
+
+    //         if(decryptedData !== null){
+    //             decryptedData = decryptedData.split('~');
+
+    //             // get the saved code and timestamp
+    //             savedCode = decryptedData[0]
+    //             storedTimestamp = decryptedData[1]
+
+    //             // convert date to usable format
+    //             storedTimestamp = new Date(storedTimestamp)
+
+    //             // get difference in times
+    //             const timeDifference = 
+    //             currentTimeStamp.getTime() - storedTimestamp.getTime();
+
+    //             // if greater than 0 and <= 2mins
+    //             if (timeDifference > 0 && timeDifference <= 2 * 60 * 1000) {     
+    //                 // code has not expired 
+
+    //                 //Remove - from saved code
+    //                 savedCode = savedCode.replace('-', '');
+                     
+    //                 if(savedCode == inputCode){ // code is valid
+    //                     result = 1;
+    //                 }
+    //             }
+    //             else{ // code expired
+    //                 result = 0;
+    //             }
+    //         }
+    //     }
+    //     else{
+    //         // no internet connection
+    //         // or something wrong with 
+    //         //API
+    //     }
+    //     return result;
+    // }
+
+    const dycryptData = async(ENCRYPTION_KEY)=>{
+        // Dycrypt saved data
+        let decryptedData = null;
+
+        await AsyncStorage.getItem(ENCRYPTION_KEY)
+        .then( async (encryptedData) => {
+            
+            decryptedData = CryptoJS.AES.decrypt(
+                encryptedData, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
+                
+        })
+        .catch((error) => {
+            console.log('DECRYPTION FAILED ...', error);
+        });
+
+        return decryptedData;
     }
 
     const clearInput = ()=>{
         setInputCode("");
         setIsCodeRejected(false);
     }
-
-    // const inputDeniedAnimation = ()=>{
-    // /////////////////////////////////////////
-    // // BAD: Because if you send a signal to the custom 
-    // // input using a state, you still have to manually 
-    // // turn of the state var over here from the child 
-    // // custom input component (child componnent)
-    // // its just messy. its better to turn on and off
-    // // state on the parent component and the child 
-    // // state should react to that change.
-
-    //     // // sends a turnOn signal to the
-    //     // // custom input to make my 
-    //     // // custom input shake
-    //     // setInputAnimationState(true);
-    // //////////////////////////////////////////
         
-    //     setTimeout(()=>{
-    //         // after 500 milisec send a 
-    //         // turnOff signal to my custom 
-    //         // input. (This doesn't turn
-    //         // of the animation, animation
-    //         // already has a duration.
-    //         // This alows us to be able
-    //         // to play the animation when
-    //         // needed again).
-    //         setInputAnimationState(false)        
-    //     }, 500)
-        
-    // }
-
-  
-        
-    const handelInput = (code) =>{
-        
-        // we just added a character
-        //HELPS ADD - AFTER 3 CHARACTERS
-        // if(code.length > inputCode.length){
-            
-        //     if(code.length === 3){
-        //         code+="-";
-        //         setInputCode((inputCode)=> inputCode+"-")
-        //     }
-        // }
-        // else{
-        //     // we removed a character
-        //     if(code.length === 3){
-        //         // code = code.substring(0, 2)    
-        //         setInputCode((inputCode)=> inputCode.substring(0,2));
-        //     }
-        // }       
-        setInputCode(code);
-    }
-
-
-
-    
     const displayNextBtn = () =>{
         // if there is an entry
         if(inputCode.length === 6){ 
-          return  <TouchableOpacity  onPress={()=>VerifyCode() }
+          return  <TouchableOpacity  onPress={()=>onClickNextBTN() }
                             style={[{ width:"43.7%", height: scale(48), 
                                 borderRadius: scale(19.43), justifyContent: 'center', alignItems: 'center',
                                 backgroundColor:"#008751"}]} >
@@ -170,7 +174,7 @@ const VerifyEmailPage = ({navigation}) => {
                         </TouchableOpacity>
         }
         else{
-            return <TouchableOpacity  onPress={()=>VerifyCode()  }
+            return <TouchableOpacity  onPress={()=>onClickNextBTN()  }
             style={[{ width:"43.7%", height: scale(48), 
                 borderRadius: scale(19.43), justifyContent: 'center', alignItems: 'center',
                 backgroundColor:"#008751", opacity: 0.5}]} disabled={true} >
@@ -242,7 +246,6 @@ const VerifyEmailPage = ({navigation}) => {
                         </TouchableOpacity>
                     </View>
                     
-                    
                     <TouchableOpacity onPress={(e)=> e.stopPropagation} 
                     style={{width:"100%",height: scale(1), opacity:0, pointerEvents:"none"}}>
 
@@ -251,7 +254,7 @@ const VerifyEmailPage = ({navigation}) => {
                             "Inter-Light", fontSize:scale(25), height: "100%"}] }
                                     placeholder={'Enter Confirmation Code '}
                                     keyboardType='number-pad'
-                                    onChangeText={(value)=> handelInput(value)}
+                                    onChangeText={(value)=> setInputCode(value)}
                                     textContentType="oneTimeCode"
                                     value={inputCode}
                                     onSubmitEditing={hideKeyboard}

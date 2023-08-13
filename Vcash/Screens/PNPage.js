@@ -6,12 +6,24 @@ import normalize from '../assets/utilities/normalize';
 import ResizableContainer from '../assets/components/ResizableContainer';
 import {useRef, useContext, useState } from 'react';
 import AutoInputFocus from '../assets/components/AutoInputFocus';
+import {generateRandomStr} from "../assets/utilities/parseFunctions" 
+import { useEffect } from 'react';
 
 const PNPage = ({navigation}) => {
+
 
     const {height, width} = useWindowDimensions();
     const scale = normalize;
     const inputRef = useRef(); // reference to the input DOM obj 
+
+// For calling test functions
+    // useEffect(()=>{
+    //     async function tempFunction(){
+    //         let result = await generateRandomStr();
+    //         console.log(result)
+    //     }
+    //     tempFunction();
+    //   },[])
     
     const stopPropagation = (e)=>{
         e.stopPropagation()
