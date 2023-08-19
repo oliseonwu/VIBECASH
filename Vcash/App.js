@@ -1,3 +1,6 @@
+import Bugsnag from '@bugsnag/expo';
+
+
 import 'react-native-gesture-handler';
 import { StrictMode, createContext, useRef, useState } from 'react';
 // import { StatusBar } from 'expo-status-bar';
@@ -10,6 +13,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import EmailPage from './Screens/EmailPage';
 import PNPage from './Screens/PNPage';
 import VerifyEmailPage from './Screens/VerifyEmailPage';
+import {BUG_SNAG } from "@env"
 import {getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword } from 'firebase/auth'
 
 // import { initializeApp } from 'firebase/app';
@@ -23,7 +27,7 @@ const Stack = createStackNavigator();
 // hold the status of if a page has been visited or not
 
 export default function App() {
-
+// Bugsnag.notify(new Error("yysndk"))
 
 // firebaseAuth.updateCurrentUser // usefull for setting the current signed in user
 
@@ -42,6 +46,10 @@ export default function App() {
     'Inter-SemiBold': require('./assets/fonts/Inter-SemiBold.ttf'),
     'Inter-Thin': require('./assets/fonts/Inter-Thin.ttf'),
   });
+
+  if(!Bugsnag.isStarted()){
+    Bugsnag.start(BUG_SNAG);
+  }
 
   if(!fontsLoaded){
     return undefined;
