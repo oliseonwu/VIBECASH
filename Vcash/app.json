@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "Vcash",
@@ -27,9 +28,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "bugsnag": {
-        "apiKey": "05dfcfdeb8aaef2cfbee0d16f4832614"
-      }
+      
     },
     "hooks": {
       "postPublish": [
