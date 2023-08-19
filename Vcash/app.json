@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "Vcash",
@@ -16,7 +17,7 @@
     ],
     "ios": {
       "supportsTablet": true
-        },
+    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -25,6 +26,17 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      
+    },
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "@bugsnag/expo/hooks/post-publish.js",
+          "config": {}
+        }
+      ]
     }
   }
 }
