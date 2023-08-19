@@ -1,3 +1,8 @@
+import Bugsnag from '@bugsnag/expo';
+if(!Bugsnag.isStarted()){
+  Bugsnag.start();
+}
+
 import 'react-native-gesture-handler';
 import { StrictMode, createContext, useRef, useState } from 'react';
 // import { StatusBar } from 'expo-status-bar';
@@ -23,7 +28,7 @@ const Stack = createStackNavigator();
 // hold the status of if a page has been visited or not
 
 export default function App() {
-
+// Bugsnag.notify(new Error("yysndk"))
 
 // firebaseAuth.updateCurrentUser // usefull for setting the current signed in user
 

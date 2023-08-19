@@ -51,6 +51,7 @@ const EmailPage = ({navigation}) => {
     
     const onClickNextBtn = async () => {
         // remove later
+        
         await logOutCurrentUser();
 
         let isEmailSent = null;
