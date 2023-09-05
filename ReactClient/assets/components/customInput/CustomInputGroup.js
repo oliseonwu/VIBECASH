@@ -4,6 +4,7 @@ import InputCellMemo from './InputCell'
 import {default as scale} from '../../utilities/normalize';
 import * as Haptics from 'expo-haptics';
 import * as Animatable from 'react-native-animatable';
+
 const CustomInputGroup = (props) => {
   const [numbers, setNumbers] = useState(["","","","","",""]);
   const [isactiveJ, setIsActiveJ] = useState([false,false,false,

@@ -10,21 +10,13 @@ import emailjs from '@emailjs/browser';
 
 import CryptoJS from 'react-native-crypto-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {REACT_APP_PUBLIC_KEY,REACT_APP_SERVICE_ID,
-    REACT_APP_TEMPLATE_ID, ENCRYPTION_KEY, CURRENT_TIME_API_LINK } from "@env"
+import {ENCRYPTION_KEY } from "@env"
 import { useRef, useState, useContext } from 'react';
 import { fetchCurrentTime } from '../assets/utilities/CurrentTime';
 import AutoInputFocus from '../assets/components/AutoInputFocus';
-import InputCell from '../assets/components/customInput/InputCell';
-import CustomInputGroup from '../assets/components/customInput/CustomInputGroup';
-import {createNewUser,doesEmailExistInDB, 
-    logOutCurrentUser, loginUser, sendEmail} from "../assets/utilities/parseFunctions" 
+import {logOutCurrentUser, sendEmail} from "../assets/utilities/parseFunctions" 
 // import {firebase} from "../firebase-config"
 import Parse from "../parse-config";
-
-// import { scale } from 'react-native-size-matters';
-
-
 
 const EmailPage = ({navigation}) => {
     // email pattern recorgnistion
@@ -42,6 +34,7 @@ const EmailPage = ({navigation}) => {
         return Math.floor(Math.random() * (max - min + 1)) + min;
       }
     
+      
     // makes sure the numbber is of length 3 
     function formatNumber(number) {
         return String(number).padStart(3, '0');

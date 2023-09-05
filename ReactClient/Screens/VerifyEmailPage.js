@@ -19,8 +19,9 @@ import CD_Timer from '../assets/components/countDownTimer';
 import { fetchCurrentTime } from '../assets/utilities/CurrentTime';
 import CustomInputGroup from '../assets/components/customInput/CustomInputGroup';
 import { color } from 'react-native-reanimated';
-import {createNewUser,doesEmailExistInDB, 
-    logOutCurrentUser, loginUsingSessionToken, verifyCode} from "../assets/utilities/parseFunctions" 
+import { loginUsingSessionToken, verifyCode, requestNewVerificationCode } from "../assets/utilities/parseFunctions" 
+import { handelError, captureLog } from '../assets/utilities/logs';
+
 const VerifyEmailPage = ({navigation}) => {
     // email pattern recorgnistion
     const route = useRoute()
@@ -30,111 +31,49 @@ const VerifyEmailPage = ({navigation}) => {
     const [noNetworkSign, setNetworkSignStatus] = useState(false)
     const [isKeyboardActive, setIsKeyboardActive] = useState(false);
     const [isCodeRejected, setIsCodeRejected] = useState(false);
+    const expiredCodeAttemptCount = useRef(0);
     
-    const[inputCode, setInputCode] = useState("")
+    const[inputCode, setInputCode] = useState("");
     
     const scale = normalize;
     
     // verify the code
     const onClickNextBTN = async() =>{
+        let verification = undefined;
+
         setNetworkSignStatus(false);
         hideKeyboard();
 
-        const verification = await verifyCode(email,inputCode,"email");
-
+        try{
+            verification = await verifyCode(email,inputCode,"email")
+        
             switch(verification.staus){
                 case 1: 
                     loginUsingSessionToken(verification.session);
                     setIsCodeRejected(false);
                     break;
                 case -1: // invalid Code
-                    // console.log("Invalid Code!");
                     setIsCodeRejected(true);
                     break;
                 case 0: // expired Code
-                    // console.log("Expired Code!");
                     setIsCodeRejected(true);
+                    expiredCodeAttemptCount.current++;
+                    
+                    if(expiredCodeAttemptCount.current >= 2){
+                        displayCodeExpiredPopUp();
+                    }
+
                     break;
                 default: 
-                    console.log("Error occured in onClickNextBTN().\n    msg=" + verification.staus);
-
+                    handelError(new Error("Error occured in reading the verification result.\n    msg=" 
+                    + verification.staus))
             }
-          
+        }
+        catch(error){
+            handelError(error);
+        }   
     }
 
-    const login = async ()=>{
-        // Remove in Production
-        await logOutCurrentUser()
-        /////////////////////////
-
-        const emailExist = await doesEmailExistInDB(email);
-
-        // New user
-        if(!emailExist){
-            // Creates and logs in the new user
-            await createNewUser(email);
-        }
-        else{
-           await loginUser(email);
-        }
-    }
-
-    // const verifyCode = async()=>{
-    //     // 1 means code is valid
-    //     // -1 means code is invalid
-    //     // 0 means code has expired 
-
-    //     // get current time
-    //     let currentTimeStamp = await fetchCurrentTime();
-    //     let decryptedData = null;
-    //     let savedCode = null;
-    //     let storedTimestamp = null;
-    //     let result = -1; // result is invalid by default
-
-    //     if(currentTimeStamp != null){
-    //         // convert date to usable format
-    //         currentTimeStamp = new Date(currentTimeStamp);
-
-    //         // save decrypted data
-    //         decryptedData = await dycryptData(ENCRYPTION_KEY);
-
-    //         if(decryptedData !== null){
-    //             decryptedData = decryptedData.split('~');
-
-    //             // get the saved code and timestamp
-    //             savedCode = decryptedData[0]
-    //             storedTimestamp = decryptedData[1]
-
-    //             // convert date to usable format
-    //             storedTimestamp = new Date(storedTimestamp)
-
-    //             // get difference in times
-    //             const timeDifference = 
-    //             currentTimeStamp.getTime() - storedTimestamp.getTime();
-
-    //             // if greater than 0 and <= 2mins
-    //             if (timeDifference > 0 && timeDifference <= 2 * 60 * 1000) {     
-    //                 // code has not expired 
-
-    //                 //Remove - from saved code
-    //                 savedCode = savedCode.replace('-', '');
-                     
-    //                 if(savedCode == inputCode){ // code is valid
-    //                     result = 1;
-    //                 }
-    //             }
-    //             else{ // code expired
-    //                 result = 0;
-    //             }
-    //         }
-    //     }
-    //     else{
-    //         // no internet connection
-    //         // or something wrong with 
-    //         //API
-    //     }
-    //     return result;
-    // }
 
     const dycryptData = async(ENCRYPTION_KEY)=>{
         // Dycrypt saved data
@@ -209,6 +148,10 @@ const VerifyEmailPage = ({navigation}) => {
         }    
     }
 
+    const displayCodeExpiredPopUp = ()=>{
+        alert("Your verification code has expired. Please tap 'Resend' to get a new code.")
+    }
+    
     return (
         <ResizableContainer width={width}>
 
@@ -281,7 +224,8 @@ const VerifyEmailPage = ({navigation}) => {
                             
                             <Text style={styles.didntRecieveCode}>{"Didn’t receive code?"}</Text>
 
-                            <TouchableOpacity style={{ marginLeft:normalize(12) }} onPress={(e)=>e.stopPropagation}>
+                            <TouchableOpacity style={{ marginLeft:normalize(12) }} 
+                                onPress={()=> requestNewVerificationCode(email)}>
 
                                     <Text style={styles.resendCodeStyle} >
                                         {"Resend"}</Text>

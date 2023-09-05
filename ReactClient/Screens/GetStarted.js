@@ -7,8 +7,6 @@ import ladyOnAChair from "../assets/img/LadyOnAChair.png"
 import normalize from '../assets/utilities/normalize';
 import ResizableContainer from '../assets/components/ResizableContainer';
 
-
-
 const GetStarted = ()=> {
   const navigation = useNavigation();
 
@@ -30,8 +28,7 @@ const GetStarted = ()=> {
       }
               
      }
-
-     
+  
         return (  
           <ResizableContainer width={width}>
             
