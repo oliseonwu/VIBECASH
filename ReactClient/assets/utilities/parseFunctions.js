@@ -22,7 +22,7 @@ export const getRecordsFromDB = async (tablename, fieldName, equalTo) => {
   return records;
 };
 
-export const sendEmail = async (email) => {
+export const sendVCodeByEmail = async (email) => {
   try {
     const result = await Parse.Cloud.run("sendVCodeAndSaveToDB", {
       destination: email,
