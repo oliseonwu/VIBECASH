@@ -1,10 +1,6 @@
 import React from "react";
-import { Text, useWindowDimensions, View, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { s } from "react-native-wind";
-import { scale } from "react-native-size-matters";
-import { useNavigation } from "@react-navigation/native";
-import { position } from "react-native-wind/dist/styles/layout/position";
-import { flex } from "react-native-wind/dist/styles/flex/flex";
 
 const ResizableContainer = (props) => {
   const REGULAR_SCREEN_WIDTH = 600;
