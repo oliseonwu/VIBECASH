@@ -8,27 +8,34 @@ import {
   TouchableOpacity,
   Platform,
   KeyboardAvoidingView,
-  StyleSheet,
   Image,
 } from "react-native";
 import { s } from "react-native-wind";
-import ResizableContainer from "../assets/components/ResizableContainer";
-import warningSign from "../assets/img/warning1.png";
-import { default as scale } from "../assets/utilities/normalize";
-import emailjs from "@emailjs/browser";
-
+import ResizableContainer from "../../components/ResizableContainer";
+import warningSign from "../../../assets/img/warning1.png";
+import { default as scale } from "../../utilities/normalize";
 import CryptoJS from "react-native-crypto-js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ENCRYPTION_KEY } from "@env";
 import { useRef, useState, useContext } from "react";
-import { fetchCurrentTime } from "../assets/utilities/CurrentTime";
-import AutoInputFocus from "../assets/components/AutoInputFocus";
+import { fetchCurrentTime } from "../../utilities/CurrentTime";
+import AutoInputFocus from "../../components/AutoInputFocus";
 import {
   logOutCurrentUser,
   sendVCodeByEmail,
-} from "../assets/utilities/parseFunctions";
-// import {firebase} from "../firebase-config"
-import Parse from "../parse-config";
+} from "../../utilities/parseFunctions";
+import Parse from "../../../parse-config";
+import { ActivityIndicator } from "react-native-paper";
+import LoadingBtn from "../../components/LoadingBtn";
+import styles from "./styles";
+
+{
+  /* <ActivityIndicator
+  hidesWhenStopped={true}
+  size={scale(25)}
+  color="#ffff"
+></ActivityIndicator>; */
+}
 
 const EmailPage = ({ navigation }) => {
   // email pattern recorgnistion
@@ -37,7 +44,7 @@ const EmailPage = ({ navigation }) => {
   const { height, width } = useWindowDimensions();
   const [noNetworkSign, setNetworkSignStatus] = useState(false);
   const [email, setEmailState] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef(); // reference to the input DOM obj
 
   const getRandomNumberInRange = (min, max) => {
@@ -51,6 +58,7 @@ const EmailPage = ({ navigation }) => {
 
   const onClickNextBtn = async () => {
     // remove later
+    setLoading(true);
 
     await logOutCurrentUser();
 
@@ -62,6 +70,8 @@ const EmailPage = ({ navigation }) => {
     // }
 
     isEmailSent = await sendVCodeByEmail(email);
+
+    setLoading((loading) => !loading);
 
     if (isEmailSent === true) {
       if (Platform.OS != "web") {
@@ -106,51 +116,15 @@ const EmailPage = ({ navigation }) => {
       return (
         <TouchableOpacity
           onPress={async () => onClickNextBtn()}
-          style={[
-            {
-              width: "43.7%",
-              height: scale(48),
-              borderRadius: scale(19.43),
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "#008751",
-            },
-          ]}
+          style={[styles.nextBTN_BG_Active]}
         >
-          <Text
-            style={[
-              s`text-white text-center`,
-              { fontFamily: "Inter-Bold", fontSize: scale(17.93) },
-            ]}
-          >
-            {"Next"}
-          </Text>
+          <Text style={styles.BtnText}>{"Next"}</Text>
         </TouchableOpacity>
       );
     } else {
       return (
-        <TouchableOpacity
-          style={[
-            {
-              width: "43.7%",
-              height: scale(48),
-              borderRadius: scale(19.43),
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "#008751",
-              opacity: 0.5,
-            },
-          ]}
-          disabled={true}
-        >
-          <Text
-            style={[
-              s`text-white text-center`,
-              { fontFamily: "Inter-Bold", fontSize: scale(17.93) },
-            ]}
-          >
-            {"Next"}
-          </Text>
+        <TouchableOpacity style={styles.nextBTN_BG_InActive} disabled={true}>
+          <Text style={[styles.BtnText]}>{"Next"}</Text>
         </TouchableOpacity>
       );
     }
@@ -188,22 +162,6 @@ const EmailPage = ({ navigation }) => {
           </Text>
         </View>
       );
-    }
-  };
-
-  // SAVES the email and time stamp in db
-  const recordEmailAndTimeStampInDB = async (email, date) => {
-    try {
-      //create a new Parse Object instance
-      const newPerson = new Parse.Object("userRestrictions");
-
-      //define the attributes you want for your Object
-      newPerson.set("email", email);
-
-      //save it on Back4App Data Store
-      await newPerson.save();
-    } catch (error) {
-      console.log("Error saving new userRestrictions: ", error);
     }
   };
 
@@ -288,7 +246,15 @@ const EmailPage = ({ navigation }) => {
                 </Text>
               </TouchableOpacity>
 
-              {displayNextBtn()}
+              {/* {displayNextBtn()} */}
+              <LoadingBtn
+                title="Next"
+                width={"43.7%"}
+                height={scale(48)}
+                isActive={pattern.test(email)}
+                loading={loading}
+                action={onClickNextBtn}
+              ></LoadingBtn>
             </View>
           </View>
         </TouchableWithoutFeedback>

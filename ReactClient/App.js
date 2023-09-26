@@ -6,22 +6,17 @@ import { StrictMode, createContext, useRef, useState } from "react";
 import { StyleSheet, SafeAreaView, StatusBar, Platform } from "react-native";
 import { s } from "react-native-wind";
 import { useFonts } from "expo-font";
-import { createStackNavigator } from "@react-navigation/stack";
-import GetStarted from "./Screens/GetStarted";
-import { NavigationContainer } from "@react-navigation/native";
-import EmailPage from "./Screens/EmailPage";
-import PNPage from "./Screens/PNPage";
-import VerifyEmailPage from "./Screens/VerifyEmailPage";
-import { BUG_SNAG } from "@env";
 import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
-
-// import { initializeApp } from 'firebase/app';
-
-import { isPageVisitedContex } from "./assets/components/visitedPagesListContex";
+  GetStartedScreen,
+  EmailSignInScreen,
+  PhoneSignInScreen,
+  VerifyEmailScreen,
+} from "./src/Screens";
+import { createStackNavigator } from "@react-navigation/stack";
+import { NavigationContainer } from "@react-navigation/native";
+import { PaperProvider } from "react-native-paper";
+import { BUG_SNAG } from "@env";
+import { isPageVisitedContex } from "./src/components/visitedPagesListContex";
 
 if (!Bugsnag.isStarted() && Platform.OS !== "web") {
   Bugsnag.start(BUG_SNAG);
@@ -29,14 +24,7 @@ if (!Bugsnag.isStarted() && Platform.OS !== "web") {
 
 const Stack = createStackNavigator();
 
-// export const isPageVisitedContex = createContext();
-// hold the status of if a page has been visited or not
-
 export default function App() {
-  // Bugsnag.notify(new Error("yysndk"))
-
-  // firebaseAuth.updateCurrentUser // usefull for setting the current signed in user
-
   const [screenListVisitState, setScreenListVisitState] = useState({
     PNpage: false,
     EmailPage: false,
@@ -76,31 +64,32 @@ export default function App() {
           backgroundColor={"white"}
           barStyle={"dark-content"}
         ></StatusBar>
-
-        <NavigationContainer>
-          <Stack.Navigator>
-            <Stack.Screen
-              options={{ headerShown: false, animationEnabled: false }}
-              name="Get Started"
-              component={GetStarted}
-            />
-            <Stack.Screen
-              options={{ headerShown: false, animationEnabled: false }}
-              name="PNpage"
-              component={PNPage}
-            />
-            <Stack.Screen
-              options={{ headerShown: false, animationEnabled: false }}
-              name="EmailPage"
-              component={EmailPage}
-            />
-            <Stack.Screen
-              options={{ headerShown: false, animationEnabled: false }}
-              name="VerifyEmailPG"
-              component={VerifyEmailPage}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
+        <PaperProvider>
+          <NavigationContainer>
+            <Stack.Navigator>
+              <Stack.Screen
+                options={{ headerShown: false, animationEnabled: false }}
+                name="Get Started"
+                component={GetStartedScreen}
+              />
+              <Stack.Screen
+                options={{ headerShown: false, animationEnabled: false }}
+                name="PNpage"
+                component={PhoneSignInScreen}
+              />
+              <Stack.Screen
+                options={{ headerShown: false, animationEnabled: false }}
+                name="EmailPage"
+                component={EmailSignInScreen}
+              />
+              <Stack.Screen
+                options={{ headerShown: false, animationEnabled: false }}
+                name="VerifyEmailPG"
+                component={VerifyEmailScreen}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </PaperProvider>
       </isPageVisitedContex.Provider>
     </SafeAreaView>
   );
